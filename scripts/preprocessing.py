@@ -7,12 +7,12 @@ def create_x_dataframe():
     return pd.DataFrame(dtype=np.float64, columns=[
         "min", "max"])
         
-def create_y_dataframe(time=None):
-    if time is None:
+def create_y_dataframe(times=None):
+    if times is None:
         return pd.DataFrame(dtype=np.float64, columns=["time"])
-    return pd.DataFrame(data={"time": [time]})
+    return pd.DataFrame(data={"time": times})
         
-def calculate_statistical_features(data_chunk):
+def calculate_statistical_features(data_chunk, window_size):
     return {
         "min": [data_chunk.acoustic_data.rolling(window=window_size).min().mean()],
         "max": [data_chunk.acoustic_data.rolling(window=window_size).max().mean()]
@@ -34,13 +34,13 @@ def process_data():
         if chunk.shape[0] < sample_size:        # throwing out last remaining rows
             break
         
-        features = calculate_statistical_features(chunk)
+        features = calculate_statistical_features(chunk, window_size)
         if samples_read < train_row_n:
             x_train = x_train.append(pd.DataFrame(data=features))
-            y_train = y_train.append(create_y_dataframe(chunk.time_to_failure.mean()))
+            y_train = y_train.append(create_y_dataframe(chunk.time_to_failure.tail(1).values))
         else:
             x_val = x_val.append(pd.DataFrame(data=features))
-            y_val = y_val.append(create_y_dataframe(chunk.time_to_failure.mean()))
+            y_val = y_val.append(create_y_dataframe(chunk.time_to_failure.tail(1).values))
         
         samples_read += sample_size
     
