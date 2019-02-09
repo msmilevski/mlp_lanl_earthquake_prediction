@@ -103,7 +103,7 @@ def process_data():
             x_train = x_train.append(pd.DataFrame(data=features))
             y_train = y_train.append(create_y_dataframe(chunk.time_to_failure.tail(1).values))
         else:
-            x_val = x_val.append(pd.DataFrame(data=features))
+            x_val = x_val.append(pd.dataFrame(data=features))
             y_val = y_val.append(create_y_dataframe(chunk.time_to_failure.tail(1).values))
         
         chunks_processed += 1
