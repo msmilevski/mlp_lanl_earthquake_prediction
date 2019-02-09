@@ -33,36 +33,47 @@ def calculate_statistical_features(data_chunk, window_size=None):
     if window_size == None:
         Q75 = data_chunk.acoustic_data.quantile(0.75)
         Q25 = data_chunk.acoustic_data.quantile(0.25)
+        mean = data_chunk.acoustic_data.mean()
+        var = data_chunk.acoustic_data.var()
         return {
             "min": [data_chunk.acoustic_data.min()],
             "max": [data_chunk.acoustic_data.max()],
-            "mean": [data_chunk.acoustic_data.mean()],
-            "var": [data_chunk.acoustic_data.var()],
+            "mean": [mean],
+            "var": [var],
+            "var_norm": [var / mean],
             "q25": [Q25],
             "q75": [Q75],
             "q01": [data_chunk.acoustic_data.quantile(0.01)],
             "q99": [data_chunk.acoustic_data.quantile(0.99)],
-            "iqr": [Q75 - Q25]
+            "iqr": [Q75 - Q25],
+            "kurtosis": [data_chunk.acoustic_data.kurt()],
+            "skew": [data_chunk.acoustic_data.skew()]
         }
     else:
         windows = data_chunk.acoustic_data.rolling(window=window_size)
         Q75 = windows.quantile(0.75).mean()
         Q25 = windows.quantile(0.25).mean()
+        mean = windows.mean().mean()
+        var = windows.var().mean()
         return {
             feature_name_for_window("min", window_size): [windows.min().mean()],
             feature_name_for_window("max", window_size): [windows.max().mean()],
-            feature_name_for_window("mean", window_size): [windows.mean().mean()],
-            feature_name_for_window("var", window_size): [windows.var().mean()],
+            feature_name_for_window("mean", window_size): [mean],
+            feature_name_for_window("var", window_size): [var],
+            feature_name_for_window("var_norm", window_size): [var / mean],
             feature_name_for_window("q25", window_size): [Q25],
             feature_name_for_window("q27", window_size): [Q75],
             feature_name_for_window("q01", window_size): [windows.quantile(0.01).mean()],
             feature_name_for_window("q99", window_size): [windows.quantile(0.99).mean()],
-            feature_name_for_window("iqr", window_size): [Q75 - Q25]
+            feature_name_for_window("iqr", window_size): [Q75 - Q25],
+            feature_name_for_window("kurtosis", window_size): [windows.kurt().mean()],
+            feature_name_for_window("skew", window_size): [windows.skew().mean()]
         }
 
 def process_data():
     sample_size = int(150e3)
-    windowed_features = ["min", "max", "mean", "var", "q25", "q75", "iqr", "q01", "q99"]
+    windowed_features = ["min", "max", "mean", "var", "var_norm", "kurtosis", "skew",
+        "q25", "q75", "iqr", "q01", "q99"]
     window_sizes = [None, 50, 100, 1000]
     other_features = []
     columns = get_columns(windowed_features, window_sizes, other_features)
@@ -74,7 +85,7 @@ def process_data():
     y_train = create_y_dataframe()
     y_val = create_y_dataframe()
 
-    train_data_file = "../data/train.csv"
+    train_data_file = "data/train.csv"
     if not os.path.isfile(train_data_file):
         print("train.csv file not found in data folder")
         print("this file is not commited in the repo and needs to be added manually")
@@ -100,6 +111,10 @@ def process_data():
         if chunks_processed % 20 == 0:
             print("{0} chunks processed, {1} remaining".format(chunks_processed, 4193 - chunks_processed))
 
+        # if chunks_processed > 1:
+        #     break
+
     return x_train, y_train, x_val, y_val
 
 x_train, y_train, x_val, y_val = process_data()
+print(x_train)
