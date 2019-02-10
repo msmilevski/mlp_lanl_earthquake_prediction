@@ -109,7 +109,7 @@ def process_data():
     sample_size = int(150e3)
     windowed_features = ["min", "max", "mean", "var", "var_norm", "kurtosis", "skew",
         "q25", "q75", "iqr", "q01", "q99"]
-    window_sizes = [None, 50, 100, 1000, "FT05", "FT95"]
+    window_sizes = [None, 50, 100, 1000, "FT10", "FT90"]
     other_features = []
     columns = get_columns(windowed_features, window_sizes, other_features)
     train_sample_n = 3334   # We have about 629 million rows in total, so dedicating 3334 * 150 000  = 500 100 000 for training
