@@ -28,8 +28,15 @@ def create_y_dataframe(times=None):
     if times is None:
         return pd.DataFrame(dtype=np.float64, columns=["time"])
     return pd.DataFrame(data={"time": times})
-        
+
+def fourier_transform(signal, start, end):
+    ft = np.fft.fft(signal)
+    np.put(ft, range(start, end), 0.0)
+    ft = np.real(np.fft.ifft(ft))
+    return ft
+
 def calculate_statistical_features(data_chunk, window_size=None):
+    
     if window_size == None:
         Q75 = data_chunk.acoustic_data.quantile(0.75)
         Q25 = data_chunk.acoustic_data.quantile(0.25)
@@ -46,35 +53,63 @@ def calculate_statistical_features(data_chunk, window_size=None):
             "q01": [data_chunk.acoustic_data.quantile(0.01)],
             "q99": [data_chunk.acoustic_data.quantile(0.99)],
             "iqr": [Q75 - Q25],
-            "kurtosis": [data_chunk.acoustic_data.kurt()],
+            "kurtosis": [data_chunk.acoustic_data.kurtosis()],
             "skew": [data_chunk.acoustic_data.skew()]
         }
     else:
-        windows = data_chunk.acoustic_data.rolling(window=window_size)
-        Q75 = windows.quantile(0.75).mean()
-        Q25 = windows.quantile(0.25).mean()
-        mean = windows.mean().mean()
-        var = windows.var().mean()
-        return {
-            feature_name_for_window("min", window_size): [windows.min().mean()],
-            feature_name_for_window("max", window_size): [windows.max().mean()],
+        if type(window_size) == int:
+            windows = data_chunk.acoustic_data.rolling(window=window_size)
+            Q75 = windows.quantile(0.75).mean()
+            Q25 = windows.quantile(0.25).mean()
+            mean = windows.mean().mean()
+            var = windows.var().mean()
+            return {
+                feature_name_for_window("min", window_size): [windows.min().mean()],
+                feature_name_for_window("max", window_size): [windows.max().mean()],
+                feature_name_for_window("mean", window_size): [mean],
+                feature_name_for_window("var", window_size): [var],
+                feature_name_for_window("var_norm", window_size): [var / mean],
+                feature_name_for_window("q25", window_size): [Q25],
+                feature_name_for_window("q75", window_size): [Q75],
+                feature_name_for_window("q01", window_size): [windows.quantile(0.01).mean()],
+                feature_name_for_window("q99", window_size): [windows.quantile(0.99).mean()],
+                feature_name_for_window("iqr", window_size): [Q75 - Q25],
+                feature_name_for_window("kurtosis", window_size): [windows.kurt().mean()],
+                feature_name_for_window("skew", window_size): [windows.skew().mean()]
+            }
+        else:
+            window = int(window_size[2:4])
+            if window >= 50:
+                signal = fourier_transform(data_chunk.acoustic_data.values, np.int32(data_chunk.acoustic_data.values.shape[0] * window / 100), np.int32(data_chunk.acoustic_data.values.shape[0]))
+            else:
+                signal = fourier_transform(data_chunk.acoustic_data.values, 0, np.int32(data_chunk.acoustic_data.values.shape[0] * window / 100))
+            
+            Q75 = np.quantile(signal, 0.75)
+            Q25 = np.quantile(signal, 0.25)
+            mean = signal.mean()
+            var = signal.var()
+            x = pd.Series(signal)
+            
+            return{
+            feature_name_for_window("min", window_size): [signal.min()],
+            feature_name_for_window("max", window_size): [signal.max()],
             feature_name_for_window("mean", window_size): [mean],
             feature_name_for_window("var", window_size): [var],
             feature_name_for_window("var_norm", window_size): [var / mean],
             feature_name_for_window("q25", window_size): [Q25],
-            feature_name_for_window("q27", window_size): [Q75],
-            feature_name_for_window("q01", window_size): [windows.quantile(0.01).mean()],
-            feature_name_for_window("q99", window_size): [windows.quantile(0.99).mean()],
+            feature_name_for_window("q75", window_size): [Q75],
+            feature_name_for_window("q01", window_size): [np.quantile(signal, 0.01)],
+            feature_name_for_window("q99", window_size): [np.quantile(signal, 0.99)],
             feature_name_for_window("iqr", window_size): [Q75 - Q25],
-            feature_name_for_window("kurtosis", window_size): [windows.kurt().mean()],
-            feature_name_for_window("skew", window_size): [windows.skew().mean()]
-        }
+            feature_name_for_window("kurtosis", window_size): [x.kurtosis()],
+            feature_name_for_window("skew", window_size): [x.skew()]
+            }
 
 def process_data():
     sample_size = int(150e3)
     windowed_features = ["min", "max", "mean", "var", "var_norm", "kurtosis", "skew",
         "q25", "q75", "iqr", "q01", "q99"]
-    window_sizes = [None, 50, 100, 1000]
+    window_sizes = [None, 50, 100, 1000, "FT05", "FT95"]
     other_features = []
     columns = get_columns(windowed_features, window_sizes, other_features)
     train_sample_n = 3334   # We have about 629 million rows in total, so dedicating 3334 * 150 000  = 500 100 000 for training
@@ -85,7 +120,7 @@ def process_data():
     y_train = create_y_dataframe()
     y_val = create_y_dataframe()
 
-    train_data_file = "data/train.csv"
+    train_data_file = "D:\\00Edinburgh\\MLP\\train.csv"
     if not os.path.isfile(train_data_file):
         print("train.csv file not found in data folder")
         print("this file is not commited in the repo and needs to be added manually")
@@ -100,19 +135,19 @@ def process_data():
             features.update(calculate_statistical_features(chunk, window_size))
             
         if chunks_processed * sample_size < train_row_n:
-            x_train = x_train.append(pd.DataFrame(data=features))
-            y_train = y_train.append(create_y_dataframe(chunk.time_to_failure.tail(1).values))
+            x_train = x_train.append(pd.DataFrame(data=features), sort=False, ignore_index=True)
+            y_train = y_train.append(create_y_dataframe(chunk.time_to_failure.tail(1).values), sort=False, ignore_index=True)
         else:
-            x_val = x_val.append(pd.dataFrame(data=features))
-            y_val = y_val.append(create_y_dataframe(chunk.time_to_failure.tail(1).values))
+            x_val = x_val.append(pd.DataFrame(data=features), sort=False, ignore_index=True)
+            y_val = y_val.append(create_y_dataframe(chunk.time_to_failure.tail(1).values), sort=False, ignore_index=True)
         
         chunks_processed += 1
 
         if chunks_processed % 20 == 0:
             print("{0} chunks processed, {1} remaining".format(chunks_processed, 4193 - chunks_processed))
 
-        # if chunks_processed > 1:
-        #     break
+        if chunks_processed > 2:
+             break
 
     return x_train, y_train, x_val, y_val
 
