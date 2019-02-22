@@ -19,7 +19,7 @@ val_data = RawDataProvider(which_set='val', data_path=args.data_path, segment_si
 model = GRU(input_size = args.element_size, hidden_size = 100, output_size=1)
 
 experiment = ExperimentBuilder(network_model=model,
-                                    experiment_name="raw_data",
+                                    experiment_name=args.experiment_name,
                                     num_epochs=args.num_epochs,
                                     weight_decay_coefficient=args.weight_decay_coefficient,
                                     use_gpu=False,
