@@ -5,20 +5,20 @@ import numpy as np
 class RawDataProvider(DataProvider):
     # returns the raw data of shape:  (num_segments, segment_size / element_size, element_size)
 
-    def __init__(self, which_set='train', segment_size=150000, element_size=1000, batch_size=1, rng=None):
+    def __init__(self, data_path, which_set='train', segment_size=150000, element_size=1000,
+        batch_size=1, rng=None):
         assert which_set in ['train', 'val'], (
             'Expected which_set to be either train or val '
             'Got {0}'.format(which_set)
         )
 
         # path of this python script
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        data_path = os.path.join(dir_path, "..", "..", "data", "only_{0}.csv".format(which_set))
-        assert os.path.isfile(data_path), (
-            'Data file does not exist at expected path: ' + data_path
+        file_path = os.path.join(data_path, "mini_{0}_dataset.csv".format(which_set))
+        assert os.path.isfile(file_path), (
+            'Data file does not exist at expected path: ' + file_path
         )
         
-        loaded = np.loadtxt(data_path, delimiter=",", skiprows=1, dtype=[('signal', np.int16), ('time', np.float)])        
+        loaded = np.loadtxt(file_path, delimiter=",", skiprows=1, dtype=[('signal', np.int16), ('time', np.float)])        
 
         amplitudes = loaded['signal'][:, None]
         times = loaded['time'][:, None]

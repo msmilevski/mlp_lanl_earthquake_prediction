@@ -4,23 +4,24 @@ from GRU import GRU
 import numpy as np
 import torch
 from experiment_builder import ExperimentBuilder
+from arg_extractor import get_args
 
-seed = 1239931
-rng = np.random.RandomState(seed=seed)  # set the seeds for the experiment
-torch.manual_seed(seed=seed) # sets pytorch's seed
+args = get_args() 
 
-segment_size = 150000
-element_size = 1000
+rng = np.random.RandomState(seed=args.seed)  # set the seeds for the experiment
+torch.manual_seed(seed=args.seed) # sets pytorch's seed
 
-train_data = RawDataProvider('train', segment_size=segment_size, element_size=element_size, rng=rng)
-val_data = RawDataProvider('val', segment_size=segment_size, element_size=element_size, rng=rng)
+train_data = RawDataProvider(which_set='train', data_path=args.data_path, segment_size=args.segment_size, 
+  element_size=args.element_size, rng=rng)
+val_data = RawDataProvider(which_set='val', data_path=args.data_path, segment_size=args.segment_size, 
+  element_size=args.element_size, rng=rng)
 
-model = GRU(input_size = element_size, hidden_size = 100, output_size=1)
+model = GRU(input_size = args.element_size, hidden_size = 100, output_size=1)
 
 experiment = ExperimentBuilder(network_model=model,
                                     experiment_name="raw_data",
-                                    num_epochs=30,
-                                    weight_decay_coefficient=1e-05,
+                                    num_epochs=args.num_epochs,
+                                    weight_decay_coefficient=args.weight_decay_coefficient,
                                     use_gpu=False,
                                     train_data=train_data, 
                                     val_data=val_data
