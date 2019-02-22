@@ -13,7 +13,7 @@ class RawDataProvider(DataProvider):
         )
 
         # path of this python script
-        file_path = os.path.join(data_path, "mini_{0}_dataset.csv".format(which_set))
+        file_path = os.path.join(data_path, "only_{0}.csv".format(which_set))
         assert os.path.isfile(file_path), (
             'Data file does not exist at expected path: ' + file_path
         )
