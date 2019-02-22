@@ -37,7 +37,7 @@ class ExperimentBuilder(nn.Module):
                                     weight_decay=weight_decay_coefficient)
         # Generate the directory names
         self.experiment_folder = os.path.abspath(experiment_name)
-        self.experiment_logs = os.path.abspath(os.path.join(self.experiment_folder, "result_outputs"))
+        self.experiment_logs = os.path.abspath(os.path.join("results", self.experiment_folder, "result_outputs"))
         self.experiment_saved_models = os.path.abspath(os.path.join(self.experiment_folder, "saved_models"))
 
         # Set best models to be at 0 since we are just starting
