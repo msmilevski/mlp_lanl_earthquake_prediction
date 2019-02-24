@@ -32,9 +32,10 @@ class LSTM(nn.Module):
                 Variable(torch.randn(self.num_layers, self.batch_size, self.hidden_size)))
 
     def forward(self, input):
+        hidden = self.init_hidden()
         #lstm_out: [input_size, batch_size, hidden_dim]
         #self.hidden: (a, b), both of size [num_layers, batch_size, hidden_dim]
-        lstm_out, self.hidden = self.lstm(input.view(self.sequence_len, self.batch_size, self.input_size))
+        lstm_out, self.hidden = self.lstm(input.view(self.sequence_len, self.batch_size, self.input_size), hidden)
         
         #output of the last element to the output layer.
         y_pred = self.linear(lstm_out[-1].view(self.batch_size, self.hidden_size))
