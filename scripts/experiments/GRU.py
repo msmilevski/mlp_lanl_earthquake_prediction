@@ -19,7 +19,7 @@ class GRU(nn.Module):
 		## from (1, N, hidden) to (N, hidden)
 		rearranged = hn.view(hn.size()[1], hn.size(2))
 		out1 = self.linear(rearranged)
-		return out1
+		return out1.view(-1)
 
 	def initHidden(self):
 		return Variable(torch.randn(1, 1, self.hidden_size))

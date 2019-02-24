@@ -33,4 +33,4 @@ export DATASET_DIR=${TMP}/datasets/
 # Activate the relevant virtual environment:
 
 source /home/${STUDENT_ID}/miniconda3/bin/activate mlp
-python scripts/experiments/gru_experiment.py --data_path /home/${STUDENT_ID}/lanl_earthquake/data
+python scripts/experiments/lstm_experiment.py --data_path /home/${STUDENT_ID}/lanl_earthquake/data --experiment_name "lstm_1"

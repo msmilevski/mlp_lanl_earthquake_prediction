@@ -23,7 +23,7 @@ class RawDataProvider(DataProvider):
 
         suitable_data_length = loaded.shape[0] // segment_size * segment_size
         amplitudes = loaded['signal'][:suitable_data_length, None]
-        times = loaded['time'][:suitable_data_length, None]
+        times = loaded['time'][:suitable_data_length]
 
         n_amplitudes = amplitudes.shape[0]        
         inputs = amplitudes.reshape(n_amplitudes // segment_size, segment_size // element_size, element_size)
