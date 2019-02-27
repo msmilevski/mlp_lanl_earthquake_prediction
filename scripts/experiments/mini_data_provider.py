@@ -5,7 +5,8 @@ import numpy as np
 class MiniDataProvider(DataProvider):
     # returns the raw data of shape:  (num_segments, segment_size / element_size, element_size)
 
-    def __init__(self, data_path, which_set='train', segment_size=150000, element_size=1000, batch_size=1, rng=None):
+    def __init__(self, data_path, which_set='train', segment_size=150000, element_size=1000, 
+        batch_size=1, rng=None, downsampled=False):
         assert which_set in ['train', 'val'], (
             'Expected which_set to be either train or val '
             'Got {0}'.format(which_set)

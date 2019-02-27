@@ -16,19 +16,16 @@ class GRU(nn.Module):
 		self.linear = nn.Linear(hidden_size, output_size)
 
 	def forward(self, input):
-		hidden = self.initHidden()
-		gru_out, hidden = self.gru(input.view(self.sequence_len, self.batch_size, self.input_size), hidden)
-		
-		print("gru_out shape {0}".format(gru_out.shape))
-		print("hidden shape {0}".format(hidden.shape))
+		hidden = self.initHidden(input.device)
+		gru_out, hidden = self.gru(input.view(self.sequence_len, self.batch_size, self.input_size), hidden)		
 
 		rearranged = gru_out[-1].view(self.batch_size, self.hidden_size)
 
 		out = self.linear(rearranged)
 		return out.view(-1)
 
-	def initHidden(self):
-		return Variable(torch.randn(self.num_layers, self.batch_size, self.hidden_size))
+	def initHidden(self, device):
+		return Variable(torch.randn(self.num_layers, self.batch_size, self.hidden_size)).to(device)
 
 	def reset_parameters(self):
 		"""

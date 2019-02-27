@@ -26,13 +26,13 @@ class LSTM(nn.Module):
         #Output layer
         self.linear = nn.Linear(self.hidden_size, output_size)
 
-    def init_hidden(self):
+    def init_hidden(self, device):
         # Hidden states init
-        return (Variable(torch.randn(self.num_layers, self.batch_size, self.hidden_size)),
-                Variable(torch.randn(self.num_layers, self.batch_size, self.hidden_size)))
+        return (Variable(torch.randn(self.num_layers, self.batch_size, self.hidden_size).to(device)),
+                Variable(torch.randn(self.num_layers, self.batch_size, self.hidden_size)).to(device))
 
     def forward(self, input):
-        hidden = self.init_hidden()
+        hidden = self.init_hidden(input.device)
         #lstm_out: [input_size, batch_size, hidden_dim]
         #self.hidden: (a, b), both of size [num_layers, batch_size, hidden_dim]
         lstm_out, self.hidden = self.lstm(input.view(self.sequence_len, self.batch_size, self.input_size), hidden)
