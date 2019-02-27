@@ -37,4 +37,5 @@ python scripts/experiments/gru_experiment.py --data_path /home/${STUDENT_ID}/lan
 											 --experiment_name "gru_downsampled" \
 											 --downsampled "true" \
 											 --segment_size 37500 --element_size 250 \
-											 --use_gpu "true" --num_epochs 45										
+											 --use_gpu "true" --gpu_id "0,1,2,3" \
+											 --num_epochs 45

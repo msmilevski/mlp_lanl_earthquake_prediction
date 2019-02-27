@@ -26,6 +26,7 @@ experiment = ExperimentBuilder(network_model=model,
                                     weight_decay_coefficient=args.weight_decay_coefficient,
                                     use_gpu=args.use_gpu,
                                     train_data=train_data, 
-                                    val_data=val_data
+                                    val_data=val_data,
+                                    gpu_id=args.gpu_id
                                     )
 experiment_metrics = experiment.run_experiment()  # run experiment and return experiment metrics

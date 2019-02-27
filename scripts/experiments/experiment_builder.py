@@ -16,13 +16,18 @@ from storage_utils import save_statistics
 
 class ExperimentBuilder(nn.Module):
     def __init__(self, network_model, experiment_name, num_epochs, train_data, val_data,
-        weight_decay_coefficient, use_gpu, continue_from_epoch=-1, max_non_improvements=30):        
+        weight_decay_coefficient, use_gpu, gpu_id, continue_from_epoch=-1, max_non_improvements=30):        
         super(ExperimentBuilder, self).__init__()
 
         if torch.cuda.is_available() and use_gpu:  # checks whether a cuda gpu is available and whether the gpu flag is True
-            self.device = torch.device('cuda')  # sets device to be cuda
-            os.environ["CUDA_VISIBLE_DEVICES"] = "0"  # sets the main GPU to be the one at index 0 (on multi gpu machines you can choose which one you want to use by using the relevant GPU ID)
+            if "," in gpu_id:
+                self.device = [torch.device('cuda:{}'.format(idx)) for idx in gpu_id.split(",")]  # sets device to be cuda
+            else:
+                self.device = torch.device('cuda:{}'.format(gpu_id))  # sets device to be cuda
+
+            os.environ["CUDA_VISIBLE_DEVICES"] = gpu_id  # sets the main GPU to be the one at index 0 (on multi gpu machines you can choose which one you want to use by using the relevant GPU ID)
             print("use GPU")
+            print("GPU ID {}".format(gpu_id))
         else:
             print("use CPU")
             self.device = torch.device('cpu')  # sets the device to be CPU
@@ -31,6 +36,12 @@ class ExperimentBuilder(nn.Module):
         self.model = network_model
         self.model.to(self.device)  # sends the model from the cpu to the gpu
         self.model.reset_parameters()  # re-initialize network parameters
+        if type(self.device) is list:
+            self.model.to(self.device[0])
+            self.model = nn.DataParallel(module=self.model, device_ids=self.device)
+            self.device = self.device[0]
+        else:
+            self.model.to(self.device)  # sends the model from the cpu to the gpu
         self.train_data = train_data
         self.val_data = val_data
         self.optimizer = optim.Adam(self.parameters(), amsgrad=False,

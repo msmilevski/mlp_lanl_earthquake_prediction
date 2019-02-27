@@ -35,6 +35,14 @@ def get_args():
                         help='Weight decay to use for Adam')
     parser.add_argument('--downsampled', nargs="?", type=str2bool, default=False,
                         help='Use downsampled dataset')
+    parser.add_argument('--gpu_id', type=str, default="None", help="A string indicating the gpu to use")
     args = parser.parse_args()
+
+    gpu_id = str(args.gpu_id)
+    if gpu_id != "None":
+        args.gpu_id = gpu_id
+
+
+    
     print(args)
     return args
