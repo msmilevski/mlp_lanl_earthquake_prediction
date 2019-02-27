@@ -6,7 +6,7 @@ class RawDataProvider(DataProvider):
     # returns the raw data of shape:  (num_segments, segment_size / element_size, element_size)
 
     def __init__(self, data_path, which_set='train', segment_size=150000, element_size=1000,
-        batch_size=1, rng=None):
+        batch_size=1, rng=None, downsampled=False):
         assert which_set in ['train', 'val'], (
             'Expected which_set to be either train or val '
             'Got {0}'.format(which_set)
@@ -14,11 +14,14 @@ class RawDataProvider(DataProvider):
 
         # path of this python script
         # file_path = os.path.join(data_path, "mini_{0}_dataset.csv".format(which_set))
-        file_path = os.path.join(data_path, "only_{0}.csv".format(which_set))
+        file_name_template = "downsampled4_{0}.csv" if downsampled else "only_{0}.csv"
+        file_path = os.path.join(data_path, file_name_template.format(which_set))
         assert os.path.isfile(file_path), (
             'Data file does not exist at expected path: ' + file_path
         )
         
+        print("Loading data")
+
         loaded = np.loadtxt(file_path, delimiter=",", skiprows=1, dtype=[('signal', np.int16), ('time', np.float)])        
 
         suitable_data_length = loaded.shape[0] // segment_size * segment_size
