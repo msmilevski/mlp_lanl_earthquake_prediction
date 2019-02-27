@@ -90,7 +90,7 @@ class ExperimentBuilder(nn.Module):
         loss.backward()  # backpropagate to compute gradients for current iter loss
 
         self.optimizer.step()  # update network parameters
-        return loss.data
+        return loss.data.detach().cpu().numpy()
 
     def run_evaluation_iter(self, x, y):
         """
@@ -104,7 +104,7 @@ class ExperimentBuilder(nn.Module):
             device=self.device)  # convert data to pytorch tensors and send to the computation device
         out = self.model.forward(x)  # forward the data in the model
         loss = self.loss(out, y)  # compute loss
-        return loss.data
+        return loss.data.detach().cpu().numpy()
 
     def save_model(self, model_save_dir, model_save_name, model_idx, best_validation_model_idx,
                    best_validation_model_acc):
@@ -161,6 +161,10 @@ class ExperimentBuilder(nn.Module):
 
                     pbar_val.update(1)  # add 1 step to the progress bar
                     pbar_val.set_description("loss: {:.4f}".format(loss))
+
+            print("\nCurrent epoch losses")
+            print(current_epoch_losses)
+            print("")
             val_mean_loss = np.mean(current_epoch_losses['val_loss'])
             if val_mean_loss < self.best_val_model_loss:  # if current epoch's mean val loss is lower than the saved best val loss then
                 self.best_val_model_loss = val_mean_loss  # set the best val model loss to be current epoch's val loss
