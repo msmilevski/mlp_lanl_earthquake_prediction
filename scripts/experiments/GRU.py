@@ -3,7 +3,8 @@ import torch.nn as nn
 from torch.autograd import Variable
 
 class GRU(nn.Module):
-	def __init__(self, input_size, sequence_len, hidden_size, output_size, batch_size=1, num_layers=1):
+	def __init__(self, input_size, sequence_len, hidden_size, output_size, batch_size=1, 
+		num_layers=1, dropout=0):
 		super(GRU, self).__init__()
 
 		self.batch_size = batch_size
@@ -12,7 +13,7 @@ class GRU(nn.Module):
 		self.sequence_len = sequence_len
 
 		self.num_layers = num_layers
-		self.gru = nn.GRU(input_size=input_size, hidden_size=hidden_size, num_layers=num_layers)
+		self.gru = nn.GRU(input_size=input_size, hidden_size=hidden_size, num_layers=num_layers, dropout=dropout)
 		self.linear = nn.Linear(hidden_size, output_size)
 
 	def forward(self, input):
