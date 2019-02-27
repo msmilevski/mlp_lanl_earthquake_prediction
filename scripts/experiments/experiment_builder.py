@@ -34,7 +34,6 @@ class ExperimentBuilder(nn.Module):
 
         self.experiment_name = experiment_name
         self.model = network_model
-        self.model.to(self.device)  # sends the model from the cpu to the gpu
         self.model.reset_parameters()  # re-initialize network parameters
         if type(self.device) is list:
             self.model.to(self.device[0])
