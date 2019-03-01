@@ -16,7 +16,7 @@ from storage_utils import save_statistics
 
 class ExperimentBuilder(nn.Module):
     def __init__(self, network_model, experiment_name, num_epochs, train_data, val_data,
-        weight_decay_coefficient, use_gpu, gpu_id, continue_from_epoch=-1, max_non_improvements=30):        
+        weight_decay_coefficient, use_gpu, gpu_id, learning_rate, continue_from_epoch=-1, max_non_improvements=30):        
         super(ExperimentBuilder, self).__init__()
 
         if torch.cuda.is_available() and use_gpu:  # checks whether a cuda gpu is available and whether the gpu flag is True
@@ -44,7 +44,7 @@ class ExperimentBuilder(nn.Module):
         self.train_data = train_data
         self.val_data = val_data
         self.optimizer = optim.Adam(self.parameters(), amsgrad=False,
-                                    weight_decay=weight_decay_coefficient)
+                                    weight_decay=weight_decay_coefficient, lr=learning_rate)
         # Generate the directory names
         self.experiment_folder = os.path.abspath(experiment_name)
         self.experiment_logs = os.path.abspath(os.path.join("results", self.experiment_folder, "result_outputs"))

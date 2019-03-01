@@ -38,6 +38,8 @@ def get_args():
     parser.add_argument('--downsampled', nargs="?", type=str2bool, default=False,
                         help='Use downsampled dataset')
     parser.add_argument('--gpu_id', type=str, default="None", help="A string indicating the gpu to use")
+    parser.add_argument('--learning_rate', nargs="?", type=float, default=1e-3,
+                        help='Learning rate passed to the optimizer')
     args = parser.parse_args()
 
     gpu_id = str(args.gpu_id)

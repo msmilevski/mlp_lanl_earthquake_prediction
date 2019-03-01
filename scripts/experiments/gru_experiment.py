@@ -12,9 +12,9 @@ args = get_args()
 rng = np.random.RandomState(seed=args.seed)  # set the seeds for the experiment
 torch.manual_seed(seed=args.seed) # sets pytorch's seed
 
-train_data = RawDataProvider(which_set='train', data_path=args.data_path, segment_size=args.segment_size, 
+train_data = MiniDataProvider(which_set='train', data_path=args.data_path, segment_size=args.segment_size, 
   element_size=args.element_size, rng=rng, downsampled=args.downsampled)
-val_data = RawDataProvider(which_set='val', data_path=args.data_path, segment_size=args.segment_size, 
+val_data = MiniDataProvider(which_set='val', data_path=args.data_path, segment_size=args.segment_size, 
   element_size=args.element_size, rng=rng, downsampled=args.downsampled)
 
 model = GRU(input_size = args.element_size, hidden_size = 100, output_size=1, num_layers=3, 
@@ -27,6 +27,7 @@ experiment = ExperimentBuilder(network_model=model,
                                     use_gpu=args.use_gpu,
                                     train_data=train_data, 
                                     val_data=val_data,
-                                    gpu_id=args.gpu_id
+                                    gpu_id=args.gpu_id,
+                                    learning_rate=args.learning_rate
                                     )
 experiment_metrics = experiment.run_experiment()  # run experiment and return experiment metrics
