@@ -13,9 +13,9 @@ rng = np.random.RandomState(seed=args.seed)  # set the seeds for the experiment
 torch.manual_seed(seed=args.seed) # sets pytorch's seed
 
 train_data = RawDataProvider(which_set='train', data_path=args.data_path, segment_size=args.segment_size, 
-  element_size=args.element_size, rng=rng, downsampled=True)
+  element_size=args.element_size, rng=rng, downsampled=args.downsampled)
 val_data = RawDataProvider(which_set='val', data_path=args.data_path, segment_size=args.segment_size, 
-  element_size=args.element_size, rng=rng, downsampled=True)
+  element_size=args.element_size, rng=rng, downsampled=args.downsampled)
 
 model = GRU(input_size = args.element_size, hidden_size = 100, output_size=1, num_layers=3, 
 	sequence_len=args.segment_size // args.element_size, dropout=0.3)

@@ -1,0 +1,18 @@
+lstm_2:
+	24 hours for LSTM on completely raw data
+	cpus were not used
+
+gru_downsampled:
+	downsampling rate = 4
+	GRU layers = 3
+	dropout = 0
+
+gru_downsampled_dropout:
+	downsampling rate = 4
+	GRU layers = 3
+	dropout = 0.3
+
+run_gru_downsampled05.sh 
+	downsampling rate = 4
+	GRU layers = 3
+	dropout = 0.5
