@@ -38,4 +38,4 @@ python scripts/experiments/lstm_experiment.py --data_path /home/${STUDENT_ID}/la
 											 --downsampled "true" \
 											 --segment_size 37500 --element_size 250 \
 											 --use_gpu "true" --gpu_id "0,1,2,3" \
-											 --num_epochs 60
+											 --num_epochs 60 --dropout 0.3
