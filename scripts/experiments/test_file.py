@@ -12,28 +12,28 @@ class DataProvider(object):
         self.data_file = data_filepath
         self.chunk_size = chunk_size
         self.num_points = chunk_size * num_chunks
-        self.window_size = int(chunk_size * 0.3)
+        self.window_size = int(chunk_size * 0.1)
 
     def next(self, is_baseline=False):
         # Initialize helper variables
         batch_sample_x = []
         batch_sample_y = []
-        last_chunk_x = None
-        last_chunk_y = None
+        last_chunk_x = np.array([])
+        last_chunk_y = np.array([])
         num_batch = 0
 
+        test = np.arange(0, self.num_points * 2).reshape(2, self.num_points)
+
+        print(test)
+
         for chunk in pd.read_csv(self.data_file, chunksize=self.num_points):
-            # Gather data by column name
+
             sample_x = np.array(chunk['acoustic_data'])
             sample_y = np.array(chunk['time_to_failure'])
 
-            if num_batch > 0:
-                last_chunk_x = sample_x[-self.chunk_size:]
-                last_chunk_y = sample_y[-self.chunk_size:]
-
-            if (last_chunk_x != None) and (last_chunk_y != None):
-                sample_x = last_chunk_x + sample_x
-                sample_y = last_chunk_y + sample_y
+            # Concatenate the points from the last batch with the new batch
+            sample_x = np.concatenate((last_chunk_x, sample_x), axis=0)
+            sample_y = np.concatenate((last_chunk_y, sample_y), axis=0)
 
             assert len(sample_x) == len(sample_y)
 
@@ -49,22 +49,22 @@ class DataProvider(object):
 
             if not is_baseline:
                 # Create indecies
-                idx = np.arange(0, sample_size)
+                idx = np.arange(0, len(batch_sample_x))
                 # Shuffle them
                 np.random.shuffle(idx)
-                batch_sample_x = np.array(batch_sample_x)
-                batch_sample_y = np.array(batch_sample_y)
-                # Re-arange batch
-                batch_sample_x = batch_sample_x[idx]
-                batch_sample_y = batch_sample_y[idx]
-
-                yield batch_sample_x, batch_sample_y
+                # Return re-aranged batch
+                yield np.array(batch_sample_x)[idx], np.array(batch_sample_y)[idx]
 
             num_batch += 1
 
+            # Save 90% of the points in this batch
+            if num_batch > 0:
+                last_chunk_x = sample_x[-int(self.chunk_size * 0.9):]
+                last_chunk_y = sample_y[-int(self.chunk_size * 0.9):]
+
 
 # Example of usage:
-# dp = DataProvider(chunk_size=10, num_chunks=2)
+# dp = DataProvider(chunk_size=10, num_chunks=3)
 # i = 0
 # for k in dp.next():
 #     print(k)
