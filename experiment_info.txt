@@ -1,0 +1,39 @@
+lstm_2:
+	24 hours for LSTM on completely raw data
+	gpus were not used
+
+gru_downsampled:
+	learning_rate = 0.001
+	downsampling rate = 4
+	GRU layers = 3
+	dropout = 0
+
+gru_downsampled_dropout:
+	learning_rate = 0.001
+	downsampling rate = 4
+	GRU layers = 3
+	dropout = 0.3
+
+run_gru_downsampled05.sh 
+	learning_rate = 0.001
+	downsampling rate = 4
+	GRU layers = 3
+	dropout = 0.5
+
+lstm_downsampled
+	learning_rate = 0.001
+	hidden_size = 100
+	layers = 2
+	dropout = 0
+
+lstm_downsampled03
+	learning_rate = 0.001
+	hidden_size = 100
+	layers = 2
+	dropout = 0.3
+
+lstm_downsampled05
+	learning_rate = 0.001
+	hidden_size = 100
+	layers = 2
+	dropout = 0.5
