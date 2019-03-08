@@ -138,34 +138,13 @@ y_train = create_y_dataframe()
 y_val = create_y_dataframe()
 
 train_data_file = "data/train.csv"
+val_data_file = "data/only_val.csv"
 save_x_train_file = "data/_new_x_train.csv"
 save_x_val_file = "data/_new_x_val.csv"
 save_y_train_file = "data/_new_y_train.csv"
 save_y_val_file = "data/_new_y_val.csv"
 
 save_x_test_file = "data/_new_x_test.csv"
-
-def save_processed_chunk(x, y, chunks_processed, train_row_n):
-    if chunks_processed * sample_size < train_row_n:
-        write_to_file(save_x_train_file, x)
-        write_to_file(save_y_train_file, y)
-    else:
-        write_to_file(save_x_val_file, x)
-        write_to_file(save_y_val_file, y)    
-
-def process_overlapped_data():
-    train_row_n = sample_size * train_sample_n * 10   # 10 -- is because we're overlapping by 90%
-    chunks_processed = 0
-    data_provider = DataProvider(data_filepath=train_data_file, num_chunks=2)
-    for acoustic_data, time in data_provider.next(is_baseline=True):
-                
-        x = get_all_features(window_sizes, acoustic_data)
-        y = create_y_dataframe([time])
-        save_processed_chunk(x, y, chunks_processed, train_row_n)
-        
-        chunks_processed += 1
-        if chunks_processed % 10 == 0:
-            print("{0} chunks processed, {1} remaining".format(chunks_processed, 41930 - chunks_processed))
 
 def process_raw_data():
     train_row_n = sample_size * train_sample_n
@@ -176,12 +155,16 @@ def process_raw_data():
 
         x = get_all_features(window_sizes, acoustic_data)
         y = create_y_dataframe([time])
-        save_processed_chunk(x, y, chunks_processed, train_row_n)
+        if chunks_processed * sample_size < train_row_n:
+            write_to_file(save_x_train_file, x)
+            write_to_file(save_y_train_file, y)
+        else:
+            write_to_file(save_x_val_file, x)
+            write_to_file(save_y_val_file, y)
 
         chunks_processed += 1
         if chunks_processed % 10 == 0:
             print("{0} chunks processed, {1} remaining".format(chunks_processed, 4193 - chunks_processed))
-
 
 def process_test_data():
     chunks_processed = 0
@@ -196,7 +179,40 @@ def process_test_data():
         chunks_processed += 1
         if chunks_processed % 10 == 0:
             print("{0} chunks processed, {1} remaining".format(chunks_processed, 2624 - chunks_processed))
+
+def process_overlapped_train_data():
+    train_row_n = sample_size * train_sample_n * 10   # 10 -- is because we're overlapping by 90%
+    chunks_processed = 0
+    data_provider = DataProvider(data_filepath=train_data_file, num_chunks=2)
+    for acoustic_data, time in data_provider.next(is_baseline=True):
+                
+        x = get_all_features(window_sizes, acoustic_data)
+        y = create_y_dataframe([time])
+        write_to_file(save_x_train_file, x)
+        write_to_file(save_y_train_file, y)
+        
+        chunks_processed += 1
+        if chunks_processed % 10 == 0:
+            print("{0} chunks processed, {1} remaining".format(chunks_processed, 41930 - chunks_processed))
+
+def process_val_data():
+    chunks_processed = 0
+    for chunk in pd.read_csv(val_data_file, chunksize=sample_size):
+        acoustic_data = chunk.acoustic_data.values
+        time = chunk.time_to_failure.tail(1).values[0]
+
+        if acoustic_data.shape[0] < sample_size:        # throwing out last remaining rows
+            break
+
+        x = get_all_features(window_sizes, acoustic_data)
+        y = create_y_dataframe([time])
+        write_to_file(save_x_val_file, x)
+        write_to_file(save_y_val_file, y)
+
+        chunks_processed += 1
+        if chunks_processed % 10 == 0:
+            print("{0} chunks processed, {1} remaining".format(chunks_processed, 4193 - train_sample_n - chunks_processed))
         
         
 
-process_test_data()
+process_val_data()

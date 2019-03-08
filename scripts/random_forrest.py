@@ -11,7 +11,7 @@ if len(sys.argv) > 1:
 	run_nr = sys.argv[1]
 
 base_dir_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-results_path = os.path.join(base_dir_path, "results", "random_forrest_{0}.csv".format(run_nr))
+results_path = os.path.join(base_dir_path, "results", "random_forrest", "random_forrest_new_{0}.csv".format(run_nr))
 
 def model_name(n_est, min_samples_split, min_samples_leaf, max_features):
 	return "n_estimators: {0}, min_samples_split: {1}, min_samples_leaf: {2}, max_features:{3}".format(
@@ -42,12 +42,15 @@ def evaluate_model(n_estimators, min_samples_split, min_samples_leaf, max_featur
 	
 	regressor.fit(x_train, y_train)
 
-	predictions = regressor.predict(x_val)
-	error = mean_absolute_error(y_val, predictions)
+	train_predictions = regressor.predict(x_train)
+	train_error = mean_absolute_error(y_train, train_predictions)	
+	print("train error: {0}".format(train_error))
 
-	print(error)
+	val_predictions = regressor.predict(x_val)
+	val_error = mean_absolute_error(y_val, val_predictions)
+	print("val error: {0}".format(val_error))
 
-	return error
+	return val_error
 
 def grid_search():
 	n_estimators_grid = [750, 1250]
@@ -104,7 +107,30 @@ def best_model_evaluation():
 		save_result_with_error_bar(mean, error_bar, n_estimators, min_samples_split,
 			min_samples_leaf, max_features)
 
-best_model_evaluation()
+def evaluate_test_set():
+	submission = pd.read_csv('data/sample_submission.csv')
+
+	x_test = data_provider.get_test_x() 
+	regressor = RandomForestRegressor(n_estimators=1000, random_state=123131,
+	    min_samples_split=2, min_samples_leaf=100, 
+	    max_features=2)
+	
+	regressor.fit(x_train, y_train)
+
+	train_predictions = regressor.predict(x_train)
+	train_error = mean_absolute_error(y_train, train_predictions)	
+	print("train error: {0}".format(train_error))
+	
+	test_predictions = regressor.predict(x_test)
+
+	print(test_predictions.shape)
+	print(submission.time_to_failure.shape)
+
+	submission['time_to_failure'] = test_predictions
+
+	submission.to_csv("submission.csv", index=False)
+
+grid_search()
 
 
 
