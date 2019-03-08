@@ -16,17 +16,13 @@ class DataProvider(object):
 
     def next(self, is_baseline=False):
         # Initialize helper variables
-        batch_sample_x = []
-        batch_sample_y = []
         last_chunk_x = np.array([])
         last_chunk_y = np.array([])
         num_batch = 0
 
-        test = np.arange(0, self.num_points * 2).reshape(2, self.num_points)
-
-        print(test)
-
         for chunk in pd.read_csv(self.data_file, chunksize=self.num_points):
+            batch_sample_x = []
+            batch_sample_y = []
 
             sample_x = np.array(chunk['acoustic_data'])
             sample_y = np.array(chunk['time_to_failure'])
@@ -34,6 +30,9 @@ class DataProvider(object):
             # Concatenate the points from the last batch with the new batch
             sample_x = np.concatenate((last_chunk_x, sample_x), axis=0)
             sample_y = np.concatenate((last_chunk_y, sample_y), axis=0)
+
+            # Save 90% of the points in this batch
+
 
             assert len(sample_x) == len(sample_y)
 
@@ -55,20 +54,18 @@ class DataProvider(object):
                 # Return re-aranged batch
                 yield np.array(batch_sample_x)[idx], np.array(batch_sample_y)[idx]
 
-            num_batch += 1
 
-            # Save 90% of the points in this batch
+
+            num_batch += 1
             if num_batch > 0:
                 last_chunk_x = sample_x[-int(self.chunk_size * 0.9):]
                 last_chunk_y = sample_y[-int(self.chunk_size * 0.9):]
 
 
 # Example of usage:
-# dp = DataProvider(chunk_size=10, num_chunks=3)
+import matplotlib.pyplot as plt
+# dp = DataProvider(data_filepath='/afs/inf.ed.ac.uk/user/s18/s1885778/mlp_lanl_earthquake_prediction/data/mini_train_dataset.csv', chunk_size=100, num_chunks=3)
 # i = 0
 # for k in dp.next():
-#     print(k)
-#
-#     if i == 2:
-#         break
-#     i += 1
+#     print(k[0].shape)
+
