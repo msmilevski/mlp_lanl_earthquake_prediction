@@ -4,19 +4,19 @@ import xgboost as xgb
 import os
 import gc
 import matplotlib.pyplot as plt
-%matplotlib inline
 from scipy.stats import kurtosis
 from scipy.stats import skew
-import dask
-import dask.dataframe as dd
 from sklearn import preprocessing
 from sklearn.metrics import mean_absolute_error
 pd.options.display.precision = 15
+import data_provider
 
-x_train = pd.read_csv("x_train.csv").drop(['var_norm_FT10', 'var_norm_FT90'], 1)
-y_train = pd.read_csv("y_train.csv")
-x_val = pd.read_csv("x_val.csv").drop(['var_norm_FT10', 'var_norm_FT90'], 1)
-y_val = pd.read_csv("y_val.csv")
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
+
+x_train, y_train, x_val, y_val = data_provider.get_data()
+x_train = x_train.drop(['var_norm_FT10', 'var_norm_FT90'], 1)
+x_val = x_val.drop(['var_norm_FT10', 'var_norm_FT90'], 1)
+
 
 def model_name(max_depth, eta, objective, booster, gamma, reg_alpha, reg_lambda, subsample, nthread):
     return "max_depth: {0}, eta: {1}, objective: {2}, booster:{3}, gamma:{4}, reg_alpha:{5},reg_lambda:{6},subsample:{7},nthread:{8}".format(max_depth, eta, 
@@ -40,14 +40,14 @@ valid_data = xgb.DMatrix(data=x_val, label=y_val, feature_names=x_train.columns)
 
 watchlist = [(train_data, 'train'), (valid_data, 'valid_data')]
 
-max_depths = [6, 7, 8, 9, 10]
-etas = [0.001, 0.01, 0.05, 0.1, 0.2, 0.3]
-objectives = ['reg:linear', 'reg:gamma']
+max_depths = [6, 7, 8]#[6, 7, 8, 9, 10]
+etas = [0.001, 0.01, 0.05]#[0.001, 0.01, 0.05, 0.1, 0.2, 0.3]
+objectives = ['reg:gamma', 'reg:linear']#['reg:linear', 'reg:gamma']
 boosters = ['gbtree']
-gammas = [0, 0.1, 0.5]
-reg_alphas = [0, 0.05, 0.1, 0.2, 0.3]
-reg_lambdas = [0, 0.05, 0.1, 0.2, 0.3]
-subsamples = [0.5, 0.6, 0.7, 0.8 , 0.9, 1]
+gammas = [0]#[0, 0.1, 0.5]
+reg_alphas = [0]#[0, 0.05, 0.1, 0.2, 0.3]
+reg_lambdas = [0.2, 0.3]#[0, 0.05, 0.1, 0.2, 0.3]
+subsamples = [0.5]#[0.5, 0.6, 0.7, 0.8 , 0.9, 1]
 nthreads = [4]
 
 grid_size = len(max_depths) * len(etas) * len(objectives) * \

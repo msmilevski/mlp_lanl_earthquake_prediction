@@ -77,24 +77,28 @@ def get_error_bar(errors):
 	std = np.std(errors)
 	n = len(errors)
 
-	print("-----TESTTTT-----")
-	print(errors)
-	print(mean)
-	print(n)
+	# print("-----TESTTTT-----")
+	# print(errors)
+	# print(mean)
+	# print(n)
 
 	return mean, std / np.sqrt(n)
 
 
 def best_model_evaluation():
 	best_models = [
-		(1000, 2, 125, 2),
-		(1250, 2, 125, 2),
-		(1000, 2, 150, 2),
-		(750, 2, 150, 2),
-		(750, 2, 125, 2)
+		(500, 2, 200, 2),
+		(400, 2, 175, 2),
+		(600, 2, 175, 2),
+		# (1250, 2, 600, 4),
+		(500, 2, 200, 2),
+		# (1250, 2, 125, 2),
+		# (1000, 2, 150, 2),
+		# (750, 2, 150, 2),
+		# (750, 2, 125, 2)
 	]
 
-	rnd_seeds = [123131, 856856, 293420, 775241, 5562960]
+	rnd_seeds = [123131]#, 856856, 293420, 775241, 5562960]
 
 	for n_estimators, min_samples_split, min_samples_leaf, max_features in best_models:		
 		errors = []
@@ -120,7 +124,7 @@ def evaluate_test_set():
 	train_predictions = regressor.predict(x_train)
 	train_error = mean_absolute_error(y_train, train_predictions)	
 	print("train error: {0}".format(train_error))
-	
+
 	test_predictions = regressor.predict(x_test)
 
 	print(test_predictions.shape)
@@ -130,7 +134,7 @@ def evaluate_test_set():
 
 	submission.to_csv("submission.csv", index=False)
 
-grid_search()
+best_model_evaluation()
 
 
 
