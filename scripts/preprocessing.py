@@ -122,78 +122,81 @@ def get_all_features(window_sizes, acoustic_data):
 
     return pd.DataFrame(data=features)
 
-def process_data():
-    sample_size = int(150e3)
-    windowed_features = ["min", "max", "mean", "var", "var_norm", "kurtosis", "skew",
-        "q25", "q75", "iqr", "q01", "q99"]
-    window_sizes = [None, 50, 100, 1000, "FT10", "FT90"]
-    other_features = []
-    columns = get_columns(windowed_features, window_sizes, other_features)
-    train_sample_n = 3334   # We have about 629 million rows in total, so dedicating 3334 * 150 000  = 500 100 000 for training
+
+sample_size = int(150e3)
+windowed_features = ["min", "max", "mean", "var", "var_norm", "kurtosis", "skew",
+    "q25", "q75", "iqr", "q01", "q99"]
+window_sizes = [None, 50, 100, 1000, "FT10", "FT90"]
+other_features = []
+columns = get_columns(windowed_features, window_sizes, other_features)
+train_sample_n = 3334   # We have about 629 million rows in total, so dedicating 3334 * 150 000  = 500 100 000 for training
+
+        
+x_train = create_x_dataframe(columns)
+x_val = create_x_dataframe(columns)
+y_train = create_y_dataframe()
+y_val = create_y_dataframe()
+
+train_data_file = "data/train.csv"
+save_x_train_file = "data/_new_x_train.csv"
+save_x_val_file = "data/_new_x_val.csv"
+save_y_train_file = "data/_new_y_train.csv"
+save_y_val_file = "data/_new_y_val.csv"
+
+save_x_test_file = "data/_new_x_test.csv"
+
+def save_processed_chunk(x, y, chunks_processed, train_row_n):
+    if chunks_processed * sample_size < train_row_n:
+        write_to_file(save_x_train_file, x)
+        write_to_file(save_y_train_file, y)
+    else:
+        write_to_file(save_x_val_file, x)
+        write_to_file(save_y_val_file, y)    
+
+def process_overlapped_data():
     train_row_n = sample_size * train_sample_n * 10   # 10 -- is because we're overlapping by 90%
-            
-    x_train = create_x_dataframe(columns)
-    x_val = create_x_dataframe(columns)
-    y_train = create_y_dataframe()
-    y_val = create_y_dataframe()
-
-    train_data_file = "data/train.csv"
-    save_x_train_file = "data/_new_x_train.csv"
-    save_x_val_file = "data/_new_x_val.csv"
-    save_y_train_file = "data/_new_y_train.csv"
-    save_y_val_file = "data/_new_y_val.csv"
-
-    save_x_test_file = "data/_new_x_test.csv"
-    
     chunks_processed = 0
     data_provider = DataProvider(data_filepath=train_data_file, num_chunks=2)
     for acoustic_data, time in data_provider.next(is_baseline=True):
-        print("data from overlapping provider:")
-        print(acoustic_data)
-        ac1 = acoustic_data
-        features1 = get_all_features(window_sizes, ac1)
-        write_to_file(save_x_train_file, features1)
-        break
+                
+        x = get_all_features(window_sizes, acoustic_data)
+        y = create_y_dataframe([time])
+        save_processed_chunk(x, y, chunks_processed, train_row_n)
+        
+        chunks_processed += 1
+        if chunks_processed % 10 == 0:
+            print("{0} chunks processed, {1} remaining".format(chunks_processed, 41930 - chunks_processed))
 
-    # for acoustic_data in test_data_provider.iterate_test_data():
-
+def process_raw_data():
+    train_row_n = sample_size * train_sample_n
+    chunks_processed = 0
     for chunk in pd.read_csv(train_data_file, chunksize=sample_size):
-        print("data from pandas:")
-        print(chunk.acoustic_data.values)
-        ac2 = acoustic_data
-        features2 = get_all_features(window_sizes, ac2)
-        break
-
         acoustic_data = chunk.acoustic_data.values
         time = chunk.time_to_failure.tail(1).values[0]
+
+        x = get_all_features(window_sizes, acoustic_data)
+        y = create_y_dataframe([time])
+        save_processed_chunk(x, y, chunks_processed, train_row_n)
+
+        chunks_processed += 1
+        if chunks_processed % 10 == 0:
+            print("{0} chunks processed, {1} remaining".format(chunks_processed, 4193 - chunks_processed))
+
+
+def process_test_data():
+    chunks_processed = 0
+    for acoustic_data in test_data_provider.iterate_test_data():
 
         if acoustic_data.shape[0] < sample_size:        # throwing out last remaining rows
             break
         
-        # x = pd.DataFrame(data=features)
-        # write_to_file(save_x_test_file, x)
-
-
         x = get_all_features(window_sizes, acoustic_data)
-        y = create_y_dataframe([time])
-        if chunks_processed * sample_size < train_row_n:
-            write_to_file(save_x_train_file, x)
-            write_to_file(save_y_train_file, y)            
-        # else:
-        #     write_to_file(save_x_val_file, x)
-        #     write_to_file(save_y_val_file, y)            
-        
+        write_to_file(save_x_test_file, x)         
+
         chunks_processed += 1
-
         if chunks_processed % 10 == 0:
-            print("{0} chunks processed, {1} remaining".format(chunks_processed, 41930 - chunks_processed))
+            print("{0} chunks processed, {1} remaining".format(chunks_processed, 2624 - chunks_processed))
+        
+        
 
-
-    print("is the data the same: {0}".format(np.allclose(ac1, ac2)))
-    print("features shape: {0}".format(features1.shape[0]))
-    
-    print("are the preprocessed features the same: {0}".format(np.all((features1 == features2).values)))
-    print(features1)
-    # return x_train, y_train, x_val, y_val
-
-process_data()
+process_test_data()
