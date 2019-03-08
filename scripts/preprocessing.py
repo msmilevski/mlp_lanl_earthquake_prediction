@@ -4,6 +4,7 @@ import sys
 import os
 sys.path.append( os.path.join(os.path.dirname(os.path.abspath(__file__)), "experiments") )
 from test_file import DataProvider
+import test_data_provider
 
 def feature_name_for_window(feature, window):
     if window == None:
@@ -113,6 +114,14 @@ def calculate_statistical_features(acoustic_data, window_size=None):
             feature_name_for_window("skew", window_size): [x.skew()]
             }
 
+def get_all_features(window_sizes, acoustic_data):
+    features = {}
+    acoustic_data = pd.DataFrame(acoustic_data)
+    for window_size in window_sizes:
+        features.update(calculate_statistical_features(acoustic_data, window_size))
+
+    return pd.DataFrame(data=features)
+
 def process_data():
     sample_size = int(150e3)
     windowed_features = ["min", "max", "mean", "var", "var_norm", "kurtosis", "skew",
@@ -129,41 +138,62 @@ def process_data():
     y_val = create_y_dataframe()
 
     train_data_file = "data/train.csv"
-    save_x_train_file = "data/new_x_train.csv"
-    save_x_val_file = "data/new_x_val.csv"
-    save_y_train_file = "data/new_y_train.csv"
-    save_y_val_file = "data/new_y_val.csv"
+    save_x_train_file = "data/_new_x_train.csv"
+    save_x_val_file = "data/_new_x_val.csv"
+    save_y_train_file = "data/_new_y_train.csv"
+    save_y_val_file = "data/_new_y_val.csv"
+
+    save_x_test_file = "data/_new_x_test.csv"
     
     chunks_processed = 0
     data_provider = DataProvider(data_filepath=train_data_file, num_chunks=2)
     for acoustic_data, time in data_provider.next(is_baseline=True):
+        print("data from overlapping provider:")
+        print(acoustic_data)
+        ac1 = acoustic_data
+        features1 = get_all_features(window_sizes, ac1)
+        write_to_file(save_x_train_file, features1)
+        break
+
+    # for acoustic_data in test_data_provider.iterate_test_data():
+
+    for chunk in pd.read_csv(train_data_file, chunksize=sample_size):
+        print("data from pandas:")
+        print(chunk.acoustic_data.values)
+        ac2 = acoustic_data
+        features2 = get_all_features(window_sizes, ac2)
+        break
+
+        acoustic_data = chunk.acoustic_data.values
+        time = chunk.time_to_failure.tail(1).values[0]
+
         if acoustic_data.shape[0] < sample_size:        # throwing out last remaining rows
             break
-        features = {}
-        acoustic_data = pd.DataFrame(acoustic_data)
-        for window_size in window_sizes:
-            features.update(calculate_statistical_features(acoustic_data, window_size))
-            
         
-        x = pd.DataFrame(data=features)
+        # x = pd.DataFrame(data=features)
+        # write_to_file(save_x_test_file, x)
+
+
+        x = get_all_features(window_sizes, acoustic_data)
         y = create_y_dataframe([time])
         if chunks_processed * sample_size < train_row_n:
             write_to_file(save_x_train_file, x)
-            write_to_file(save_y_train_file, y)
-            # x_train = x_train.append(x, sort=False, ignore_index=True)
-            # y_train = y_train.append(y, sort=False, ignore_index=True)
-        else:
-            write_to_file(save_x_val_file, x)
-            write_to_file(save_y_val_file, y)
-            # x_val = x_val.append(x, sort=False, ignore_index=True)
-            # y_val = y_val.append(y, sort=False, ignore_index=True)
+            write_to_file(save_y_train_file, y)            
+        # else:
+        #     write_to_file(save_x_val_file, x)
+        #     write_to_file(save_y_val_file, y)            
         
         chunks_processed += 1
 
         if chunks_processed % 10 == 0:
             print("{0} chunks processed, {1} remaining".format(chunks_processed, 41930 - chunks_processed))
 
+
+    print("is the data the same: {0}".format(np.allclose(ac1, ac2)))
+    print("features shape: {0}".format(features1.shape[0]))
+    
+    print("are the preprocessed features the same: {0}".format(np.all((features1 == features2).values)))
+    print(features1)
     # return x_train, y_train, x_val, y_val
 
-x_train, y_train, x_val, y_val = process_data()
-print(x_train)
+process_data()
