@@ -41,13 +41,13 @@ valid_data = xgb.DMatrix(data=x_val, label=y_val, feature_names=x_train.columns)
 watchlist = [(train_data, 'train'), (valid_data, 'valid_data')]
 
 max_depths = [6, 7, 8]#[6, 7, 8, 9, 10]
-etas = [0.001, 0.01, 0.05]#[0.001, 0.01, 0.05, 0.1, 0.2, 0.3]
-objectives = ['reg:gamma', 'reg:linear']#['reg:linear', 'reg:gamma']
+etas = [0.005, 0.01, 0.02]#[0.001, 0.01, 0.05, 0.1, 0.2, 0.3]
+objectives = ['reg:linear', 'reg:gamma']#['reg:linear', 'reg:gamma']
 boosters = ['gbtree']
 gammas = [0]#[0, 0.1, 0.5]
 reg_alphas = [0]#[0, 0.05, 0.1, 0.2, 0.3]
-reg_lambdas = [0.2, 0.3]#[0, 0.05, 0.1, 0.2, 0.3]
-subsamples = [0.5]#[0.5, 0.6, 0.7, 0.8 , 0.9, 1]
+reg_lambdas = [0.1, 0.2, 0.3]#[0, 0.05, 0.1, 0.2, 0.3]
+subsamples = [0.5, 0.7]#[0.5, 0.6, 0.7, 0.8 , 0.9, 1]
 nthreads = [4]
 
 grid_size = len(max_depths) * len(etas) * len(objectives) * \
