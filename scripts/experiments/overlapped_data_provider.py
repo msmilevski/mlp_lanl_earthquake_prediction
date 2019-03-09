@@ -12,8 +12,12 @@ class OverlappedDataProvider(object):
         self.data_file = data_filepath
         self.chunk_size = chunk_size
         self.num_points = chunk_size * num_chunks
-        self.window_size = int(chunk_size * 0.1)
+        self.overlap_fraction = 0.9
+        self.slide_size = 1 - self.overlap_fraction
+        self.window_size = int(chunk_size * (1 - self.slide_size))
         self.batch_size = batch_size
+        train_rows = int(5001e5)   # this is only used for progress bar so do not worry too much about it being hardcoded
+        self.num_batches = int(train_rows / chunk_size * (1 / self.slide_size) / batch_size)
 
 
     def next(self, is_baseline=False):
