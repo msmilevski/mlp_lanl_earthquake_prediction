@@ -10,8 +10,8 @@ import time
 results_path = "SVR.out"
 
 def write_to_results(text, mode="a"):
-	with open(results_path, mode) as f:
-		f.write(text + "\n")
+    with open(results_path, mode) as f:
+        f.write(text + "\n")
 
 x_train, y_train, x_val, y_val = data_provider.get_data()
 
@@ -25,12 +25,12 @@ print("starting evaluation of {0} models".format(total_num_models))
 for C in Cs:
     for kernel in kernels:
         for epsilon in epsilons:
-        	print("MODEL {0}".format(models_evaluated))
+            print("MODEL {0}".format(models_evaluated))
 
-        	if models_evaluated <= 7:   # Already have results for these models
-        		print("skipping this model")
-        		models_evaluated += 1
-        		continue
+            if models_evaluated <= 7:   # Already have results for these models
+                print("skipping this model")
+                models_evaluated += 1
+                continue
 
             
             start = time.time()
