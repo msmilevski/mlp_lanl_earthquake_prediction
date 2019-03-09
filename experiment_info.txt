@@ -20,20 +20,38 @@ run_gru_downsampled05.sh
 	GRU layers = 3
 	dropout = 0.5
 
-lstm_downsampled
+lstm_downsampled1
 	learning_rate = 0.001
 	hidden_size = 100
 	layers = 2
 	dropout = 0
 
-lstm_downsampled03
+lstm_downsampled2
 	learning_rate = 0.001
 	hidden_size = 100
 	layers = 2
 	dropout = 0.3
 
-lstm_downsampled05
+lstm_downsampled3
 	learning_rate = 0.001
+	hidden_size = 100
+	layers = 2
+	dropout = 0.5
+
+lstm_downsampled4
+	learning_rate = 0.0002
+	hidden_size = 100
+	layers = 2
+	dropout = 0.5
+
+lstm_full_raw1
+	learning_rate = 0.0002
+	hidden_size = 100
+	layers = 2
+	dropout = 0.3
+
+lstm_full_raw2
+	learning_rate = 0.0002
 	hidden_size = 100
 	layers = 2
 	dropout = 0.5
