@@ -3,7 +3,7 @@ import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
 import sys
 import os
 sys.path.append( os.path.join(os.path.dirname(os.path.abspath(__file__)), "experiments") )
-from test_file import DataProvider
+from overlapped_data_provider import OverlappedDataProvider
 import test_data_provider
 
 def feature_name_for_window(feature, window):
@@ -183,7 +183,7 @@ def process_test_data():
 def process_overlapped_train_data():
     train_row_n = sample_size * train_sample_n * 10   # 10 -- is because we're overlapping by 90%
     chunks_processed = 0
-    data_provider = DataProvider(data_filepath=train_data_file, num_chunks=2)
+    data_provider = OverlappedDataProvider(data_filepath=train_data_file, num_chunks=2)
     for acoustic_data, time in data_provider.next(is_baseline=True):
                 
         x = get_all_features(window_sizes, acoustic_data)
