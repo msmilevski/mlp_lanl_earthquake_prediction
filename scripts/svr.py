@@ -5,6 +5,7 @@ from sklearn.metrics import mean_absolute_error
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
 import data_provider
+import time
 
 results_path = "SVR.out"
 
@@ -24,6 +25,9 @@ print("starting evaluation of {0} models".format(total_num_models))
 for C in Cs:
     for kernel in kernels:
         for epsilon in epsilons:
+            print("MODEL {0}".format(models_evaluated))
+            start = time.time()
+
             clf = SVR(kernel=kernel, C=C, epsilon=epsilon)
             clf.fit(x_train, y_train)
             predictions = clf.predict(x_val)
@@ -33,6 +37,9 @@ for C in Cs:
             print(result)
             write_to_results(result)
 
+            end = time.time()
+            print("Model {0} evaluation finished, time elapsed: {1}".format(models_evaluated, start - end))
             models_evaluated +=1
 
             print("{0}/{1} models evaluated".format(models_evaluated, total_num_models))
+
