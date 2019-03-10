@@ -42,4 +42,4 @@ python scripts/experiments/lstm_experiment.py --data_path ${DATASET_DIR} \
 											 --segment_size 150000 --element_size 1000 \
 											 --use_gpu "true" --gpu_id "0,1,2,3" \
 											 --num_epochs 100 --dropout 0 \
-											 --learning_rate 0.0002
+											 --learning_rate 0.0002 --batch_size 10
