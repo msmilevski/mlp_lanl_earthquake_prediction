@@ -1,10 +1,10 @@
 #!/bin/sh
 #SBATCH -N 1	  # nodes requested
 #SBATCH -n 1	  # tasks requested
-#SBATCH --partition=LongJobs
-#SBATCH --gres=gpu:2
+#SBATCH --partition=Standard
+#SBATCH --gres=gpu:4
 #SBATCH --mem=12000  # memory in Mb
-#SBATCH --time=0-30:00:00
+#SBATCH --time=0-08:00:00
 
 export CUDA_HOME=/opt/cuda-9.0.176.1/
 
@@ -22,20 +22,26 @@ export PATH=${CUDA_HOME}/bin:${PATH}
 
 export PYTHON_PATH=$PATH
 
-mkdir -p /disk/scratch/${STUDENT_ID}
+export TEAM_NAME = most-legit
+export TMP=/disk/scratch/${TEAM_NAME}/
+
+export DATASET_DIR=${TMP}data
+mkdir -p ${TMP}
+mkdir -p ${DATASET_DIR}
+
+echo "Copying dataset."
+mkdir -p $DATASET_DIR
+rsync -ua /home/${STUDENT_ID}/lanl_earthquake/data/only_train.csv $DATASET_DIR
+rsync -ua /home/${STUDENT_ID}/lanl_earthquake/data/only_val.csv $DATASET_DIR
+echo "DATASET_DIR: $DATASET_DIR"
 
 
-export TMPDIR=/disk/scratch/${STUDENT_ID}/
-export TMP=/disk/scratch/${STUDENT_ID}/
-
-mkdir -p ${TMP}/datasets/
-export DATASET_DIR=${TMP}/datasets/
 # Activate the relevant virtual environment:
 
 source /home/${STUDENT_ID}/miniconda3/bin/activate mlp
-python scripts/experiments/lstm_experiment.py --data_path /home/${STUDENT_ID}/lanl_earthquake/data \
+python scripts/experiments/lstm_experiment.py --data_path ${DATASET_DIR} \
 											 --experiment_name "lstm_overlapped1" \
 											 --segment_size 150000 --element_size 1000 \
-											 --use_gpu "true" --gpu_id "0,1" \
+											 --use_gpu "true" --gpu_id "0,1,2,3,4,5" \
 											 --num_epochs 100 --dropout 0 \
 											 --learning_rate 0.0002

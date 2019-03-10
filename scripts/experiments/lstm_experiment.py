@@ -18,7 +18,7 @@ torch.manual_seed(seed=args.seed) # sets pytorch's seed
 data_path = os.path.join(args.data_path, "only_train.csv")
 train_data = OverlappedDataProvider(data_filepath=data_path, chunk_size=args.segment_size)
 batch_size = train_data.batch_size
-val_data = MiniDataProvider(which_set='val', data_path=args.data_path, segment_size=args.segment_size, 
+val_data = RawDataProvider(which_set='val', data_path=args.data_path, segment_size=args.segment_size, 
   element_size=args.element_size, rng=rng, batch_size=batch_size)
 
 
