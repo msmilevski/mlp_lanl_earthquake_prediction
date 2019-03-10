@@ -22,8 +22,8 @@ export PATH=${CUDA_HOME}/bin:${PATH}
 
 export PYTHON_PATH=$PATH
 
-export TEAM_NAME = most-legit
-export TMP=/disk/scratch/${TEAM_NAME}/
+
+export TMP=/disk/scratch/most_legit/
 
 export DATASET_DIR=${TMP}data
 mkdir -p ${TMP}
@@ -42,6 +42,6 @@ source /home/${STUDENT_ID}/miniconda3/bin/activate mlp
 python scripts/experiments/lstm_experiment.py --data_path ${DATASET_DIR} \
 											 --experiment_name "lstm_overlapped1" \
 											 --segment_size 150000 --element_size 1000 \
-											 --use_gpu "true" --gpu_id "0,1,2,3,4,5" \
+											 --use_gpu "true" --gpu_id "0,1,2,3" \
 											 --num_epochs 100 --dropout 0 \
 											 --learning_rate 0.0002
