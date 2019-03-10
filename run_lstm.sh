@@ -30,11 +30,9 @@ mkdir -p ${TMP}
 mkdir -p ${DATASET_DIR}
 
 echo "Copying dataset."
-mkdir -p $DATASET_DIR
 rsync -ua /home/${STUDENT_ID}/lanl_earthquake/data/only_train.csv $DATASET_DIR
 rsync -ua /home/${STUDENT_ID}/lanl_earthquake/data/only_val.csv $DATASET_DIR
 echo "DATASET_DIR: $DATASET_DIR"
-
 
 # Activate the relevant virtual environment:
 
