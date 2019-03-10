@@ -22,7 +22,7 @@ val_data = RawDataProvider(which_set='val', data_path=args.data_path, segment_si
   element_size=args.element_size, rng=rng, batch_size=batch_size)
 
 
-model = LSTM(input_size = args.element_size, hidden_size = 100, output_size=1, 
+model = LSTM(input_size = args.element_size, hidden_size = 100, output_size=1, num_layers=args.num_layers,
 	sequence_len=args.segment_size // args.element_size, dropout=args.dropout, batch_size=batch_size)
 
 experiment = ExperimentBuilder(network_model=model,
