@@ -66,9 +66,9 @@ class OverlappedDataProvider(object):
                 last_chunk_x = sample_x[-int(self.chunk_size * 0.9):]
                 last_chunk_y = sample_y[-int(self.chunk_size * 0.9):]
 
-        #print(len(batch_sample_x))
-
-
+    def __iter__(self):
+        for next_batch in self.next():
+            yield next_batch
 
 
 # Example of usage:
@@ -78,3 +78,7 @@ class OverlappedDataProvider(object):
 # for k in dp.next():
 #     print(k[0].shape)
 
+# or
+#
+# for idx, (x, y) in enumerate(dp):
+#     do_magic(x, y)
