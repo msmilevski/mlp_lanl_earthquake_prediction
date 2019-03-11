@@ -14,7 +14,7 @@ class OverlappedDataProvider(object):
         self.num_points = chunk_size * num_chunks
         self.overlap_fraction = 0.9
         self.slide_size = 1 - self.overlap_fraction
-        self.window_size = int(chunk_size * (1 - self.slide_size))
+        self.window_size = int(chunk_size * self.slide_size)
         self.batch_size = batch_size
         train_rows = int(5001e5)   # this is only used for progress bar so do not worry too much about it being hardcoded
         self.num_batches = int(train_rows / chunk_size * (1 / self.slide_size) / batch_size)
@@ -73,10 +73,15 @@ class OverlappedDataProvider(object):
 
 # Example of usage:
 # import matplotlib.pyplot as plt
-# dp = DataProvider(data_filepath='/afs/inf.ed.ac.uk/user/s18/s1885778/mlp_lanl_earthquake_prediction/data/mini_train_dataset.csv', chunk_size=100, num_chunks=3)
+# dp = OverlappedDataProvider(data_filepath='/afs/inf.ed.ac.uk/user/s18/s1885778/mlp_lanl_earthquake_prediction/data/only_train.csv', chunk_size=100, num_chunks=3)
 #
-# for k in dp.next():
-#     print(k[0].shape)
+# for idx, (x, y) in enumerate(dp):
+#     print(idx)
+#     print(x)
+#     print(y)
+#
+#     if idx == 3:
+#         break
 
 # or
 #
