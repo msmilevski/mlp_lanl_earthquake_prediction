@@ -3,7 +3,8 @@ import numpy as np
 
 
 class OverlappedDataProvider(object):
-    def __init__(self, data_filepath='../../data/train.csv', batch_size=10, chunk_size=150000, num_chunks=6):
+    def __init__(self, data_filepath='../../data/train.csv', batch_size=10, chunk_size=150000, 
+        num_chunks=6, overlap_fraction=0.9):
         '''
         :param data_filepath: string with the location of the training set
         :param chunk_size: size of the training instance
@@ -12,7 +13,7 @@ class OverlappedDataProvider(object):
         self.data_file = data_filepath
         self.chunk_size = chunk_size
         self.num_points = chunk_size * num_chunks
-        self.overlap_fraction = 0.9
+        self.overlap_fraction = overlap_fraction
         self.slide_size = 1 - self.overlap_fraction
         self.window_size = int(chunk_size * self.slide_size)
         self.batch_size = batch_size

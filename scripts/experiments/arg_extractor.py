@@ -46,6 +46,8 @@ def get_args():
                         help='Use overlapped dataset')
     parser.add_argument('--mini_data', nargs="?", type=str2bool, default=False,
                         help='Use minimized raw dataset')
+    parser.add_argument('--overlap_fraction', nargs="?", type=float, default=0.9,
+                        help='Overlap fraction for the overlapped data provider')
     args = parser.parse_args()
 
     gpu_id = str(args.gpu_id)
