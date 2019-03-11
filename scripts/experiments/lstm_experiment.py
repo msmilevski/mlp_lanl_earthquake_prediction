@@ -15,16 +15,21 @@ args = get_args()
 rng = np.random.RandomState(seed=args.seed)  # set the seeds for the experiment
 torch.manual_seed(seed=args.seed) # sets pytorch's seed
 
-data_path = os.path.join(args.data_path, "only_train.csv")
-train_data = OverlappedDataProvider(data_filepath=data_path, chunk_size=args.segment_size, batch_size=args.batch_size)
-batch_size = train_data.batch_size
-val_data_path = os.path.join(args.data_path, "only_val.csv")
-val_data = OverlappedDataProvider(data_filepath=val_data_path, 
-    chunk_size=args.segment_size, batch_size=args.batch_size)
+if args.overlapped_data:
+    data_path = os.path.join(args.data_path, "only_train.csv")
+    train_data = OverlappedDataProvider(data_filepath=data_path, chunk_size=args.segment_size, batch_size=args.batch_size)
+    val_data_path = os.path.join(args.data_path, "only_val.csv")
+    val_data = OverlappedDataProvider(data_filepath=val_data_path, 
+        chunk_size=args.segment_size, batch_size=args.batch_size)
+else:
+    train_data = MiniDataProvider(which_set='train', data_path=args.data_path, segment_size=args.segment_size, 
+    element_size=args.element_size, rng=rng, batch_size=args.batch_size)
+    val_data = MiniDataProvider(which_set='val', data_path=args.data_path, segment_size=args.segment_size, 
+    element_size=args.element_size, rng=rng, batch_size=args.batch_size)
 
 
 model = LSTM(input_size = args.element_size, hidden_size = 100, output_size=1, num_layers=args.num_layers,
-	sequence_len=args.segment_size // args.element_size, dropout=args.dropout, batch_size=batch_size)
+	sequence_len=args.segment_size // args.element_size, dropout=args.dropout, batch_size=args.batch_size)
 
 experiment = ExperimentBuilder(network_model=model,
                                     experiment_name=args.experiment_name,

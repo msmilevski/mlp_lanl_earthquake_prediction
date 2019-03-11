@@ -38,9 +38,9 @@ echo "DATASET_DIR: $DATASET_DIR"
 
 source /home/${STUDENT_ID}/miniconda3/bin/activate mlp
 python scripts/experiments/lstm_experiment.py --data_path ${DATASET_DIR} \
-											 --experiment_name "lstm_overlapped5" \
+											 --experiment_name "lstm_raw_test" \
 											 --segment_size 150000 --element_size 1000 \
 											 --use_gpu "true" \
 											 --num_epochs 100 --dropout 0 \
 											 --learning_rate 0.0002 --batch_size 2 \
-											 --num_layers 3
+											 --num_layers 3 --overlapped "false"

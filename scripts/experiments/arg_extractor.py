@@ -42,6 +42,8 @@ def get_args():
                         help='Learning rate passed to the optimizer')
     parser.add_argument('--num_layers', nargs="?", type=int, default=2,
                         help='Number of layers in the model')
+    parser.add_argument('--overlapped_data', nargs="?", type=str2bool, default=True,
+                        help='Use overlapped dataset')
     args = parser.parse_args()
 
     gpu_id = str(args.gpu_id)
