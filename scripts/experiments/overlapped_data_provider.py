@@ -73,15 +73,15 @@ class OverlappedDataProvider(object):
 
 # Example of usage:
 # import matplotlib.pyplot as plt
-dp = OverlappedDataProvider(data_filepath='/afs/inf.ed.ac.uk/user/s18/s1885778/mlp_lanl_earthquake_prediction/data/only_val.csv', chunk_size=100, num_chunks=3)
-#
-for idx, (x, y) in enumerate(dp):
-    print(idx)
-    print(x)
-    print(y)
+# dp = OverlappedDataProvider(data_filepath='/afs/inf.ed.ac.uk/user/s18/s1885778/mlp_lanl_earthquake_prediction/data/only_val.csv', chunk_size=100, num_chunks=3)
+# #
+# for idx, (x, y) in enumerate(dp):
+#     print(idx)
+#     print(x)
+#     print(y)
 
-    if idx == 3:
-        break
+#     if idx == 3:
+#         break
 
 # or
 #
