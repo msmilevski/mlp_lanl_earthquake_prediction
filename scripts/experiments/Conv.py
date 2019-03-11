@@ -76,7 +76,7 @@ class ConvolutionalNetwork(nn.Module):
         :param x: Inputs x (b, c, h, w)
         :return: preds (b, num_classes)
         """
-        out = x
+        out = torch.reshape(x, (x.shape[0], 1, x.shape[1]))
         for i in range(self.num_layers):  # for number of layers
             out = self.layer_dict['conv_{}'.format(i)](out)  # pass through conv layer indexed at i
             out = F.relu(out)  # pass conv outputs through ReLU
@@ -95,6 +95,6 @@ class ConvolutionalNetwork(nn.Module):
             except:
                 pass
 
-        self.logit_linear_layer.reset_parameters()
+        self.linear_layer.reset_parameters()
 
 
