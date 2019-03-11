@@ -14,7 +14,7 @@ class OverlappedDataProvider(object):
         self.num_points = chunk_size * num_chunks
         self.overlap_fraction = 0.9
         self.slide_size = 1 - self.overlap_fraction
-        self.window_size = int(chunk_size * (1 - self.slide_size))
+        self.window_size = int(chunk_size * self.slide_size)
         self.batch_size = batch_size
         train_rows = int(5001e5)   # this is only used for progress bar so do not worry too much about it being hardcoded
         self.num_batches = int(train_rows / chunk_size * (1 / self.slide_size) / batch_size)
@@ -47,7 +47,7 @@ class OverlappedDataProvider(object):
                 batch_sample_y.append(sample_y[j + self.chunk_size])
 
                 if is_baseline:
-                    yield sample_x[j:j + self.chunk_size], sample_y[j + self.chunk_size]
+                    yield sample_x[j:j + self.chunk_size], np.array([sample_y[j + self.chunk_size]])
 
                 if (not is_baseline) and (len(batch_sample_y) == self.batch_size):
                     # Create indecies
