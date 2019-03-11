@@ -3,16 +3,16 @@ import torch
 from experiment_builder import ExperimentBuilder
 from arg_extractor import get_args
 from Conv import ConvolutionalNetwork
-from test_file import DataProvider
+from overlapped_data_provider import OverlappedDataProvider
 
 args = get_args()
 
 rng = np.random.RandomState(seed=args.seed)  # set the seeds for the experiment
 torch.manual_seed(seed=args.seed)
 
-train_data = DataProvider(data_filepath=args.data_path + 'train.csv', batch_size=args.batch_size,
+train_data = OverlappedDataProvider(data_filepath=args.data_path + 'train.csv', batch_size=args.batch_size,
                           chunk_size=args.segment_size)
-valid_data = DataProvider(data_filepath=args.data_path + 'valid.csv', batch_size=args.batch_size,
+valid_data = OverlappedDataProvider(data_filepath=args.data_path + 'valid.csv', batch_size=args.batch_size,
                           chunk_size=args.segment_size)
 
 model = ConvolutionalNetwork(input_shape=(args.batch_size, 1, args.segment_size), kernel_size=15, num_filters=32,
@@ -28,4 +28,5 @@ experiment = ExperimentBuilder(network_model=model,
                                gpu_id=args.gpu_id,
                                learning_rate=args.learning_rate)
 
+print('Experiment class created')
 experiment_metrics = experiment.run_experiment()
