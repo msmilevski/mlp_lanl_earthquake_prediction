@@ -1,4 +1,4 @@
-python scripts/experiments/lstm_experiment.py --data_path /home/dziugas/lanl_earth/data \
+python scripts/experiments/lstm_experiment.py --data_path ./data \
 											 --experiment_name "lstm_overlapped_is_baseline" \
 											 --segment_size 150000 --element_size 1000 \
 											 --use_gpu "true" \
