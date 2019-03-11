@@ -19,11 +19,11 @@ if args.overlapped_data:
     data_path = os.path.join(args.data_path, "only_train.csv")
     train_data = OverlappedDataProvider(data_filepath=data_path, chunk_size=args.segment_size, 
         batch_size=args.batch_size, overlap_fraction=args.overlap_fraction)
-    val_data_path = os.path.join(args.data_path, "only_val.csv")
-    val_data = OverlappedDataProvider(data_filepath=val_data_path, 
-        chunk_size=args.segment_size, batch_size=args.batch_size, overlap_fraction=args.overlap_fraction)
-    # val_data = RawDataProvider(which_set='val', data_path=args.data_path, segment_size=args.segment_size, 
-    #     element_size=args.element_size, rng=rng, batch_size=args.batch_size, mini=args.mini_data)
+    # val_data_path = os.path.join(args.data_path, "only_val.csv")
+    # val_data = OverlappedDataProvider(data_filepath=val_data_path, 
+    #     chunk_size=args.segment_size, batch_size=args.batch_size, overlap_fraction=args.overlap_fraction)
+    val_data = RawDataProvider(which_set='val', data_path=args.data_path, segment_size=args.segment_size, 
+        element_size=args.element_size, rng=rng, batch_size=args.batch_size, mini=args.mini_data)
 else:
     train_data = RawDataProvider(which_set='train', data_path=args.data_path, segment_size=args.segment_size, 
     element_size=args.element_size, rng=rng, batch_size=args.batch_size, mini=args.mini_data)
