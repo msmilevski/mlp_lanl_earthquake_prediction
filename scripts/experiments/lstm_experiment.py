@@ -22,9 +22,9 @@ if args.overlapped_data:
     val_data = OverlappedDataProvider(data_filepath=val_data_path, 
         chunk_size=args.segment_size, batch_size=args.batch_size)
 else:
-    train_data = MiniDataProvider(which_set='train', data_path=args.data_path, segment_size=args.segment_size, 
+    train_data = RawDataProvider(which_set='train', data_path=args.data_path, segment_size=args.segment_size, 
     element_size=args.element_size, rng=rng, batch_size=args.batch_size)
-    val_data = MiniDataProvider(which_set='val', data_path=args.data_path, segment_size=args.segment_size, 
+    val_data = RawDataProvider(which_set='val', data_path=args.data_path, segment_size=args.segment_size, 
     element_size=args.element_size, rng=rng, batch_size=args.batch_size)
 
 
