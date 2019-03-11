@@ -44,6 +44,8 @@ def get_args():
                         help='Number of layers in the model')
     parser.add_argument('--overlapped_data', nargs="?", type=str2bool, default=True,
                         help='Use overlapped dataset')
+    parser.add_argument('--mini_data', nargs="?", type=str2bool, default=False,
+                        help='Use minimized raw dataset')
     args = parser.parse_args()
 
     gpu_id = str(args.gpu_id)
