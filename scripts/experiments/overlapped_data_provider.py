@@ -20,7 +20,7 @@ class OverlappedDataProvider(object):
         self.num_batches = int(train_rows / chunk_size * (1 / self.slide_size) / batch_size)
 
 
-    def next(self, is_baseline=True):
+    def next(self, is_baseline=False):
         # Initialize helper variables
         batch_sample_x = []
         batch_sample_y = []
