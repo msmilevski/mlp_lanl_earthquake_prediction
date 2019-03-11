@@ -1,7 +1,7 @@
 #!/bin/sh
 #SBATCH -N 1	  # nodes requested
 #SBATCH -n 1	  # tasks requested
-#SBATCH --partition=LongJobs
+#SBATCH --partition=Standard
 #SBATCH --gres=gpu:2
 #SBATCH --mem=12000  # memory in Mb
 #SBATCH --time=0-30:00:00
@@ -36,7 +36,7 @@ source /home/${STUDENT_ID}/miniconda3/bin/activate mlp
 python scripts/experiments/conv_experiment.py --data_path /home/${STUDENT_ID}/lanl_earthquake/data \
                                              --batch_size 64 \
                                              --num_layers 3 \
-											 --experiment_name "lstm_full_raw" \
+											 --experiment_name "cnn-3" \
 											 --segment_size 150000 --element_size 1000 \
 											 --use_gpu "true" --gpu_id "0,1" \
 											 --num_epochs 60 --dropout 0.3 \

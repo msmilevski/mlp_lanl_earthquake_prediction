@@ -44,7 +44,7 @@ class OverlappedDataProvider(object):
             for j in np.arange(0, sample_size - self.chunk_size, self.window_size):
                 # Append chunk to batch
                 batch_sample_x.append(sample_x[j:j + self.chunk_size])
-                batch_sample_y.append(sample_y[j + self.chunk_size])
+                batch_sample_y.append(sample_y[(j-1) + self.chunk_size])
 
                 if is_baseline:
                     yield sample_x[j:j + self.chunk_size], np.array([sample_y[j + self.chunk_size]])
@@ -73,10 +73,15 @@ class OverlappedDataProvider(object):
 
 # Example of usage:
 # import matplotlib.pyplot as plt
-# dp = DataProvider(data_filepath='/afs/inf.ed.ac.uk/user/s18/s1885778/mlp_lanl_earthquake_prediction/data/mini_train_dataset.csv', chunk_size=100, num_chunks=3)
+dp = OverlappedDataProvider(data_filepath='/afs/inf.ed.ac.uk/user/s18/s1885778/mlp_lanl_earthquake_prediction/data/only_val.csv', chunk_size=100, num_chunks=3)
 #
-# for k in dp.next():
-#     print(k[0].shape)
+for idx, (x, y) in enumerate(dp):
+    print(idx)
+    print(x)
+    print(y)
+
+    if idx == 3:
+        break
 
 # or
 #
