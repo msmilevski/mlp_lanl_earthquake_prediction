@@ -15,8 +15,7 @@ train_data = OverlappedDataProvider(data_filepath=args.data_path + 'train.csv', 
 valid_data = OverlappedDataProvider(data_filepath=args.data_path + 'valid.csv', batch_size=args.batch_size,
                           chunk_size=args.segment_size)
 
-model = ConvolutionalNetwork(input_shape=(args.batch_size, 1, args.segment_size), kernel_size=15, num_filters=32,
-                             num_layers=args.num_layers)
+model = ConvolutionalNetwork(input_shape=(args.batch_size, 1, args.segment_size))
 
 experiment = ExperimentBuilder(network_model=model,
                                experiment_name=args.experiment_name,
