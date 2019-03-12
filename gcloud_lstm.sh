@@ -4,4 +4,4 @@ python scripts/experiments/lstm_experiment.py --data_path ./data \
 											 --use_gpu "true" \
 											 --num_epochs 100 --dropout 0.5 \
 											 --learning_rate 0.0002 --batch_size 2 \
-											 --num_layers 3 --overlapped_data "true" --overlap_fraction 0.5 \ 
+											 --num_layers 3 --overlapped_data "true" --overlap_fraction 0.5
