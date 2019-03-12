@@ -81,7 +81,7 @@ class ExperimentBuilder(nn.Module):
         :return: the loss and accuracy for this batch
         """
         self.train()  # sets model to training mode (in case batch normalization or other methods have different procedures for training and evaluation)
-        x, y = torch.Tensor(x).float().to(device=self.device), torch.Tensor(y).float().to(
+        x, y = torch.Tensor(x).to(device=self.device), torch.Tensor(y).float().to(
             device=self.device)  # send data to device as torch tensors
         out = self.model.forward(x)  # forward the data in the model
         loss = self.loss(input=out, target=y)  # compute loss
@@ -100,7 +100,7 @@ class ExperimentBuilder(nn.Module):
         :return: the loss and accuracy for this batch
         """
         self.eval()  # sets the system to validation mode
-        x, y = torch.Tensor(x).float().to(device=self.device), torch.Tensor(y).float().to(
+        x, y = torch.Tensor(x).to(device=self.device), torch.Tensor(y).float().to(
             device=self.device)  # convert data to pytorch tensors and send to the computation device
         out = self.model.forward(x)  # forward the data in the model
         loss = self.loss(out, y)  # compute loss
