@@ -25,6 +25,7 @@ class RawDataProvider(DataProvider):
             'Data file does not exist at expected path: ' + file_path
         )
         
+        print("file_path: {0}".format(file_path))
         print("Loading data")
 
         loaded = np.loadtxt(file_path, delimiter=",", skiprows=1, dtype=[('signal', np.int16), ('time', np.float)])        
