@@ -4,7 +4,7 @@
 #SBATCH --partition=Standard
 #SBATCH --gres=gpu:2
 #SBATCH --mem=12000  # memory in Mb
-#SBATCH --time=0-30:00:00
+#SBATCH --time=0-08:00:00
 
 export CUDA_HOME=/opt/cuda-9.0.176.1/
 
@@ -35,9 +35,8 @@ export DATASET_DIR=${TMP}/datasets/
 source /home/${STUDENT_ID}/miniconda3/bin/activate mlp
 python scripts/experiments/conv_experiment.py --data_path /home/${STUDENT_ID}/lanl_earthquake/data \
                                              --batch_size 64 \
-                                             --num_layers 3 \
 											 --experiment_name "cnn-3" \
-											 --segment_size 150000 --element_size 1000 \
+											 --segment_size 150000 \
 											 --use_gpu "true" --gpu_id "0,1" \
 											 --num_epochs 60 --dropout 0.3 \
-											 --learning_rate 0.0002
+											 --learning_rate 0.0001

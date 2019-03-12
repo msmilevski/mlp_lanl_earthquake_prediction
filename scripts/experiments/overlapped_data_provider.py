@@ -29,7 +29,12 @@ class OverlappedDataProvider(object):
         last_chunk_y = np.array([])
         num_reads = 0
 
-        for chunk in pd.read_csv(self.data_file, chunksize=self.num_points):
+        dtypes = {
+            'acoustic_data': 'Int16',
+            'time_to_failure': 'Float64'
+        }
+
+        for chunk in pd.read_csv(self.data_file, chunksize=self.num_points, dtype=dtypes):
             # Gather data from columns
             sample_x = np.array(chunk['acoustic_data'])
             sample_y = np.array(chunk['time_to_failure'])
@@ -56,7 +61,8 @@ class OverlappedDataProvider(object):
                     # Shuffle them
                     np.random.shuffle(idx)
                     # Return re-aranged batch
-                    yield np.array(batch_sample_x)[idx], np.array(batch_sample_y)[idx]
+                    yield (np.array(batch_sample_x, dtype=dtypes['acoustic_data'])[idx], 
+                        np.array(batch_sample_y, dtype=dtypes['time_to_failure'])[idx])
                     # Reset batch
                     batch_sample_x = []
                     batch_sample_y = []
