@@ -28,7 +28,12 @@ class OverlappedDataProvider(object):
         last_chunk_y = np.array([])
         num_reads = 0
 
-        for chunk in pd.read_csv(self.data_file, chunksize=self.num_points):
+        dtypes = {
+            'acoustic_data': 'Int16',
+            'time_to_failure': 'Float64'
+        }
+
+        for chunk in pd.read_csv(self.data_file, chunksize=self.num_points, dtype=dtypes):
             # Gather data from columns
             sample_x = np.array(chunk['acoustic_data'])
             sample_y = np.array(chunk['time_to_failure'])
@@ -47,7 +52,7 @@ class OverlappedDataProvider(object):
                 batch_sample_y.append(sample_y[(j-1) + self.chunk_size])
 
                 if is_baseline:
-                    yield sample_x[j:j + self.chunk_size], sample_y[j + self.chunk_size]
+                    yield sample_x[j:j + self.chunk_size], np.array([sample_y[j + self.chunk_size]])
 
                 if (not is_baseline) and (len(batch_sample_y) == self.batch_size):
                     # Create indecies
@@ -55,7 +60,8 @@ class OverlappedDataProvider(object):
                     # Shuffle them
                     np.random.shuffle(idx)
                     # Return re-aranged batch
-                    yield np.array(batch_sample_x)[idx], np.array(batch_sample_y)[idx]
+                    yield (np.array(batch_sample_x, dtype=dtypes['acoustic_data'])[idx], 
+                        np.array(batch_sample_y, dtype=dtypes['time_to_failure'])[idx])
                     # Reset batch
                     batch_sample_x = []
                     batch_sample_y = []
