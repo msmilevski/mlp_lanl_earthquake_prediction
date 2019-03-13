@@ -1,6 +1,10 @@
 import numpy as np # linear algebra
 import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+import sys
 import os
+sys.path.append( os.path.join(os.path.dirname(os.path.abspath(__file__)), "experiments") )
+from overlapped_data_provider import OverlappedDataProvider
+import test_data_provider
 
 def feature_name_for_window(feature, window):
     if window == None:
@@ -29,66 +33,71 @@ def create_y_dataframe(times=None):
         return pd.DataFrame(dtype=np.float64, columns=["time"])
     return pd.DataFrame(data={"time": times})
 
+def write_to_file(file, df):
+    with open(file, 'a') as f:
+        df.to_csv(f, header=False, index=False)
+
 def fourier_transform(signal, start, end):
     ft = np.fft.fft(signal)
     np.put(ft, range(start, end), 0.0)
     ft = np.real(np.fft.ifft(ft))
     return ft
 
-def calculate_statistical_features(data_chunk, window_size=None):
-    
+def calculate_statistical_features(acoustic_data, window_size=None):
     if window_size == None:
-        Q75 = data_chunk.acoustic_data.quantile(0.75)
-        Q25 = data_chunk.acoustic_data.quantile(0.25)
-        mean = data_chunk.acoustic_data.mean()
-        var = data_chunk.acoustic_data.var()
+        Q75 = acoustic_data.quantile(0.75)
+        Q25 = acoustic_data.quantile(0.25)
+        mean = acoustic_data.mean()
+        var = acoustic_data.var()
         return {
-            "min": [data_chunk.acoustic_data.min()],
-            "max": [data_chunk.acoustic_data.max()],
-            "mean": [mean],
-            "var": [var],
-            "var_norm": [var / mean],
-            "q25": [Q25],
-            "q75": [Q75],
-            "q01": [data_chunk.acoustic_data.quantile(0.01)],
-            "q99": [data_chunk.acoustic_data.quantile(0.99)],
-            "iqr": [Q75 - Q25],
-            "kurtosis": [data_chunk.acoustic_data.kurtosis()],
-            "skew": [data_chunk.acoustic_data.skew()]
+            "min": acoustic_data.min(),
+            "max": acoustic_data.max(),
+            "mean": mean,
+            "var": var,
+            "var_norm": var / mean,
+            "q25": Q25,
+            "q75": Q75,
+            "q01": acoustic_data.quantile(0.01),
+            "q99": acoustic_data.quantile(0.99),
+            "iqr": Q75 - Q25,
+            "kurtosis": acoustic_data.kurtosis(),
+            "skew": acoustic_data.skew()
         }
     else:
         if type(window_size) == int:
-            windows = data_chunk.acoustic_data.rolling(window=window_size)
-            Q75 = windows.quantile(0.75).mean()
-            Q25 = windows.quantile(0.25).mean()
-            mean = windows.mean().mean()
-            var = windows.var().mean()
+            windows = acoustic_data.rolling(window=window_size)
+            windows_mean = windows.mean()
+
+            Q75 = windows_mean.quantile(0.75)
+            Q25 = windows_mean.quantile(0.25)
+            mean = windows_mean.mean()
+            var = windows_mean.var()
             return {
-                feature_name_for_window("min", window_size): [windows.min().mean()],
-                feature_name_for_window("max", window_size): [windows.max().mean()],
-                feature_name_for_window("mean", window_size): [mean],
-                feature_name_for_window("var", window_size): [var],
-                feature_name_for_window("var_norm", window_size): [var / mean],
-                feature_name_for_window("q25", window_size): [Q25],
-                feature_name_for_window("q75", window_size): [Q75],
-                feature_name_for_window("q01", window_size): [windows.quantile(0.01).mean()],
-                feature_name_for_window("q99", window_size): [windows.quantile(0.99).mean()],
-                feature_name_for_window("iqr", window_size): [Q75 - Q25],
-                feature_name_for_window("kurtosis", window_size): [windows.kurt().mean()],
-                feature_name_for_window("skew", window_size): [windows.skew().mean()]
+                feature_name_for_window("min", window_size): windows_mean.min(),
+                feature_name_for_window("max", window_size): windows_mean.max(),
+                feature_name_for_window("mean", window_size): mean,
+                feature_name_for_window("var", window_size): var,
+                feature_name_for_window("var_norm", window_size): var / mean,
+                feature_name_for_window("q25", window_size): Q25,
+                feature_name_for_window("q75", window_size): Q75,
+                feature_name_for_window("q01", window_size): windows_mean.quantile(0.01),
+                feature_name_for_window("q99", window_size): windows_mean.quantile(0.99),
+                feature_name_for_window("iqr", window_size): Q75 - Q25,
+                feature_name_for_window("kurtosis", window_size): windows_mean.kurt(),
+                feature_name_for_window("skew", window_size): windows_mean.skew()
             }
         else:
             window = int(window_size[2:4])
             if window >= 50:
-                signal = fourier_transform(data_chunk.acoustic_data.values, np.int32(data_chunk.acoustic_data.values.shape[0] * window / 100), np.int32(data_chunk.acoustic_data.values.shape[0]))
+                signal = fourier_transform(acoustic_data.values, np.int32(acoustic_data.values.shape[0] * window / 100), np.int32(acoustic_data.values.shape[0]))
             else:
-                signal = fourier_transform(data_chunk.acoustic_data.values, 0, np.int32(data_chunk.acoustic_data.values.shape[0] * window / 100))
+                signal = fourier_transform(acoustic_data.values, 0, np.int32(acoustic_data.values.shape[0] * window / 100))
             
             Q75 = np.quantile(signal, 0.75)
             Q25 = np.quantile(signal, 0.25)
             mean = signal.mean()
-            var = signal.var()
-            x = pd.Series(signal)
+            var = signal.var()            
+            x = pd.Series(signal.ravel())
             
             return{
             feature_name_for_window("min", window_size): [signal.min()],
@@ -105,51 +114,105 @@ def calculate_statistical_features(data_chunk, window_size=None):
             feature_name_for_window("skew", window_size): [x.skew()]
             }
 
-def process_data():
-    sample_size = int(150e3)
-    windowed_features = ["min", "max", "mean", "var", "var_norm", "kurtosis", "skew",
-        "q25", "q75", "iqr", "q01", "q99"]
-    window_sizes = [None, 50, 100, 1000, "FT10", "FT90"]
-    other_features = []
-    columns = get_columns(windowed_features, window_sizes, other_features)
-    train_sample_n = 3334   # We have about 629 million rows in total, so dedicating 3334 * 150 000  = 500 100 000 for training
-    train_row_n = sample_size * train_sample_n
-            
-    x_train = create_x_dataframe(columns)
-    x_val = create_x_dataframe(columns)
-    y_train = create_y_dataframe()
-    y_val = create_y_dataframe()
+def get_all_features(window_sizes, acoustic_data):
+    features = {}
+    acoustic_data = pd.DataFrame(acoustic_data)
+    for window_size in window_sizes:
+        features.update(calculate_statistical_features(acoustic_data, window_size))
 
-    train_data_file = "D:\\00Edinburgh\\MLP\\train.csv"
-    if not os.path.isfile(train_data_file):
-        print("train.csv file not found in data folder")
-        print("this file is not commited in the repo and needs to be added manually")
-        return (None, None, None, None)
-    
-    chunks_processed = 0    
-    for chunk in pd.read_csv(train_data_file, chunksize=sample_size):
-        if chunk.shape[0] < sample_size:        # throwing out last remaining rows
-            break
-        features = {}
-        for window_size in window_sizes:
-            features.update(calculate_statistical_features(chunk, window_size))
-            
-        if chunks_processed * sample_size < train_row_n:
-            x_train = x_train.append(pd.DataFrame(data=features), sort=False, ignore_index=True)
-            y_train = y_train.append(create_y_dataframe(chunk.time_to_failure.tail(1).values), sort=False, ignore_index=True)
-        else:
-            x_val = x_val.append(pd.DataFrame(data=features), sort=False, ignore_index=True)
-            y_val = y_val.append(create_y_dataframe(chunk.time_to_failure.tail(1).values), sort=False, ignore_index=True)
+    return pd.DataFrame(data=features)
+
+
+sample_size = int(150e3)
+windowed_features = ["min", "max", "mean", "var", "var_norm", "kurtosis", "skew",
+    "q25", "q75", "iqr", "q01", "q99"]
+window_sizes = [None, 50, 100, 1000, "FT10", "FT90"]
+other_features = []
+columns = get_columns(windowed_features, window_sizes, other_features)
+train_sample_n = 3334   # We have about 629 million rows in total, so dedicating 3334 * 150 000  = 500 100 000 for training
+
         
-        chunks_processed += 1
+x_train = create_x_dataframe(columns)
+x_val = create_x_dataframe(columns)
+y_train = create_y_dataframe()
+y_val = create_y_dataframe()
 
-        if chunks_processed % 20 == 0:
+train_data_file = "data/train.csv"
+val_data_file = "data/only_val.csv"
+save_x_train_file = "data/_new_x_train.csv"
+save_x_val_file = "data/_new_x_val.csv"
+save_y_train_file = "data/_new_y_train.csv"
+save_y_val_file = "data/_new_y_val.csv"
+
+save_x_test_file = "data/_new_x_test.csv"
+
+def process_raw_data():
+    train_row_n = sample_size * train_sample_n
+    chunks_processed = 0
+    for chunk in pd.read_csv(train_data_file, chunksize=sample_size):
+        acoustic_data = chunk.acoustic_data.values
+        time = chunk.time_to_failure.tail(1).values[0]
+
+        x = get_all_features(window_sizes, acoustic_data)
+        y = create_y_dataframe([time])
+        if chunks_processed * sample_size < train_row_n:
+            write_to_file(save_x_train_file, x)
+            write_to_file(save_y_train_file, y)
+        else:
+            write_to_file(save_x_val_file, x)
+            write_to_file(save_y_val_file, y)
+
+        chunks_processed += 1
+        if chunks_processed % 10 == 0:
             print("{0} chunks processed, {1} remaining".format(chunks_processed, 4193 - chunks_processed))
 
-        if chunks_processed > 2:
-             break
+def process_test_data():
+    chunks_processed = 0
+    for acoustic_data in test_data_provider.iterate_test_data():
 
-    return x_train, y_train, x_val, y_val
+        if acoustic_data.shape[0] < sample_size:        # throwing out last remaining rows
+            break
+        
+        x = get_all_features(window_sizes, acoustic_data)
+        write_to_file(save_x_test_file, x)         
 
-x_train, y_train, x_val, y_val = process_data()
-print(x_train)
+        chunks_processed += 1
+        if chunks_processed % 10 == 0:
+            print("{0} chunks processed, {1} remaining".format(chunks_processed, 2624 - chunks_processed))
+
+def process_overlapped_train_data():
+    train_row_n = sample_size * train_sample_n * 10   # 10 -- is because we're overlapping by 90%
+    chunks_processed = 0
+    data_provider = OverlappedDataProvider(data_filepath=train_data_file, num_chunks=2)
+    for acoustic_data, time in data_provider.next(is_baseline=True):
+                
+        x = get_all_features(window_sizes, acoustic_data)
+        y = create_y_dataframe([time])
+        write_to_file(save_x_train_file, x)
+        write_to_file(save_y_train_file, y)
+        
+        chunks_processed += 1
+        if chunks_processed % 10 == 0:
+            print("{0} chunks processed, {1} remaining".format(chunks_processed, 41930 - chunks_processed))
+
+def process_val_data():
+    chunks_processed = 0
+    for chunk in pd.read_csv(val_data_file, chunksize=sample_size):
+        acoustic_data = chunk.acoustic_data.values
+        time = chunk.time_to_failure.tail(1).values[0]
+
+        if acoustic_data.shape[0] < sample_size:        # throwing out last remaining rows
+            break
+
+        x = get_all_features(window_sizes, acoustic_data)
+        y = create_y_dataframe([time])
+        write_to_file(save_x_val_file, x)
+        write_to_file(save_y_val_file, y)
+
+        chunks_processed += 1
+        if chunks_processed % 10 == 0:
+            print("{0} chunks processed, {1} remaining".format(chunks_processed, 4193 - train_sample_n - chunks_processed))
+        
+        
+
+process_val_data()
