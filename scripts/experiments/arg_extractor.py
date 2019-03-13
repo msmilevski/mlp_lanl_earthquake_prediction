@@ -40,6 +40,10 @@ def get_args():
     parser.add_argument('--gpu_id', type=str, default="None", help="A string indicating the gpu to use")
     parser.add_argument('--learning_rate', nargs="?", type=float, default=1e-3,
                         help='Learning rate passed to the optimizer')
+    
+    parser.add_argument('--num_layers', nargs="?", type=int, default=2, help='Number of layers')
+    parser.add_argument('--hidden_size', nargs="?", type=int, default=150, help='Hidden size')
+
     args = parser.parse_args()
 
     gpu_id = str(args.gpu_id)

@@ -46,7 +46,7 @@ class SeqDataProvider(DataProvider):
             targets = np.zeros(n_signal)
             for i in range(n_signal):
                 inputs[i] = signal[(segment_size // element_size // overlap_percentage)*i:(segment_size // element_size)+((segment_size // element_size // overlap_percentage)*i)].reshape(segment_size // element_size, feature_size)
-                targets[i] = time[(segment_size // element_size)+((segment_size // element_size // overlap_percentage)*i)]
+                targets[i] = time[(segment_size // element_size)+((segment_size // element_size // overlap_percentage)*i) - 1 ]
         
         print("inputs shape: {0}, targets shape: {1}".format(inputs.shape, targets.shape))
         assert inputs.shape[0] == targets.shape[0]

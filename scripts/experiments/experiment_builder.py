@@ -28,7 +28,10 @@ class ExperimentBuilder(nn.Module):
             os.environ["CUDA_VISIBLE_DEVICES"] = gpu_id  # sets the main GPU to be the one at index 0 (on multi gpu machines you can choose which one you want to use by using the relevant GPU ID)
             print("use GPU")
             print("GPU ID {}".format(gpu_id))
+            f = open("gpu.txt", "w")
+            f.write("GPU ID {}".format(gpu_id))
         else:
+            f = open("cpu.txt", "w")
             print("use CPU")
             self.device = torch.device('cpu')  # sets the device to be CPU
 
