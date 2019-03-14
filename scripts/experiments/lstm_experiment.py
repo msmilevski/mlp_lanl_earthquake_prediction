@@ -26,9 +26,9 @@ if args.overlapped_data:
     #     element_size=args.element_size, rng=rng, batch_size=args.batch_size, mini=args.mini_data)
 else:
     train_data = RawDataProvider(which_set='train', data_path=args.data_path, segment_size=args.segment_size, 
-    element_size=args.element_size, rng=rng, batch_size=args.batch_size, mini=args.mini_data)
+    element_size=args.element_size, rng=rng, batch_size=args.batch_size)
     val_data = RawDataProvider(which_set='val', data_path=args.data_path, segment_size=args.segment_size, 
-    element_size=args.element_size, rng=rng, batch_size=args.batch_size, mini=args.mini_data)
+    element_size=args.element_size, rng=rng, batch_size=args.batch_size)
 
 
 model = LSTM(input_size = args.element_size, hidden_size = 100, output_size=1, num_layers=args.num_layers,
