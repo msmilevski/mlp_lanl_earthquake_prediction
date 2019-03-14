@@ -19,6 +19,11 @@ class OverlappedDataProvider2(object):
         self.num_batches = int(train_rows / segment_size * (1 / self.slide_size) / batch_size)
         self.data_splits = data_splits
 
+        print("loading data: {0}".format(filepath))
+        self.loaded = np.loadtxt(self.file_path, delimiter=",", skiprows=1, 
+            dtype=[('signal', np.int16), ('time', np.float)])
+        print("finished loading data")
+
     def next(self, is_baseline=False):
         # Initialize helper variables
         last_chunk_x = np.array([])
@@ -30,9 +35,8 @@ class OverlappedDataProvider2(object):
             'time_to_failure': 'Float64'
         }
 
-        loaded = np.loadtxt(self.file_path, delimiter=",", skiprows=1, dtype=[('signal', np.int16), ('time', np.float)])
-
-        total_num_points = loaded['signal'].shape[0]
+        
+        total_num_points = self.loaded['signal'].shape[0]
         chunk_size = total_num_points // self.data_splits
         chunk_starts = np.arange(0, total_num_points, chunk_size)
         np.random.shuffle(chunk_starts)
@@ -42,8 +46,8 @@ class OverlappedDataProvider2(object):
         for start in chunk_starts:            
             end = start + chunk_size
             end = min(end, total_num_points)   # off by 1?
-            sample_x = loaded['signal'][start:end]
-            sample_y = loaded['time'][start:end]
+            sample_x = self.loaded['signal'][start:end]
+            sample_y = self.loaded['time'][start:end]
             sample_size = len(sample_x)
             
             batch_sample_x = leftover_x if len(leftover_x) > 0 else np.array([])
