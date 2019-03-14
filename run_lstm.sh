@@ -2,7 +2,7 @@
 #SBATCH -N 1	  # nodes requested
 #SBATCH -n 1	  # tasks requested
 #SBATCH --partition=Standard
-#SBATCH --gres=gpu:4
+#SBATCH --gres=gpu:2
 #SBATCH --mem=12000  # memory in Mb
 #SBATCH --time=0-08:00:00
 
@@ -38,9 +38,9 @@ echo "DATASET_DIR: $DATASET_DIR"
 
 source /home/${STUDENT_ID}/miniconda3/bin/activate mlp
 python scripts/experiments/lstm_experiment.py --data_path ${DATASET_DIR} \
-											 --experiment_name "lstm_full_overlap_batch_64" \
+											 --experiment_name "lstm_full_overlap_batch_64_4" \
 											 --segment_size 150000 --element_size 1000 \
-											 --use_gpu "true" --gpu_id "0,1,2,3" \
+											 --use_gpu "true" --gpu_id "0,1" \
 											 --num_epochs 100 --dropout 0 \
 											 --learning_rate 0.001 --batch_size 64 \
 											 --num_layers 3 --overlapped_data "true" --overlap_fraction 0.9
