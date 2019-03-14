@@ -19,7 +19,7 @@ class OverlappedDataProvider2(object):
         self.num_batches = int(train_rows / segment_size * (1 / self.slide_size) / batch_size)
         self.data_splits = data_splits
 
-        print("loading data: {0}".format(filepath))
+        print("loading data: {0}".format(self.file_path))
         self.loaded = np.loadtxt(self.file_path, delimiter=",", skiprows=1, 
             dtype=[('signal', np.int16), ('time', np.float)])
         print("finished loading data")
