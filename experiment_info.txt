@@ -55,3 +55,46 @@ lstm_full_raw2
 	hidden_size = 100
 	layers = 2
 	dropout = 0.5
+
+lstm_overlapped1
+	learning_rate = 0.0002
+	hidden_size = 100
+	layers = 2
+	dropout = 0
+
+lstm_overlapped2
+	learning_rate = 0.0005
+	hidden_size = 100
+	layers = 2
+	dropout = 0
+
+lstm_overlapped3
+	learning_rate = 0.0002
+	hidden_size = 100
+	layers = 3
+	dropout = 0
+
+lstm_overlapped4
+	learning_rate = 0.001
+	hidden_size = 100
+	layers = 3
+	dropout = 0
+
+lstm_train_overlap_batch_64
+	 --num_epochs 100 --dropout 0 \
+	 --learning_rate 0.001 --batch_size 64 \
+	 --num_layers 3 --overlapped_data "true" --overlap_fraction 0.9
+	 // val data is not overlapped
+
+lstm_full_overlap_batch_64
+	 --num_epochs 100 --dropout 0 \
+	 --learning_rate 0.001 --batch_size 64 \
+	 --num_layers 3 --overlapped_data "true" --overlap_fraction 0.9
+	 // val data is overlapped
+	 // also removed .float() in exp builder
+
+lstm_new_overlapped_provider_2
+	 --num_epochs 100 --dropout 0.1 \
+	 --learning_rate 0.001 --batch_size 64 \
+	 --num_layers 3 --overlapped_data "true" --overlap_fraction 0.9
+	 // val is not overlapped

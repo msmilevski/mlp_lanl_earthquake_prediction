@@ -21,7 +21,7 @@ class LSTM(nn.Module):
         self.dropout = dropout
         
         #LSTM layer
-        self.lstm = nn.LSTM(self.input_size, self.hidden_size, self.num_layers, dropout=self.dropout)
+        self.lstm = nn.LSTM(self.input_size, self.hidden_size, self.num_layers, dropout=self.dropout, batch_first=True)
 
         #Output layer
         self.linear = nn.Linear(self.hidden_size, output_size)
@@ -33,12 +33,12 @@ class LSTM(nn.Module):
 
     def forward(self, input):
         hidden = self.init_hidden(input.device)
-        #lstm_out: [input_size, batch_size, hidden_dim]
+        #lstm_out: [batch_size, input_size, hidden_dim]  because of batch_first=True
         #self.hidden: (a, b), both of size [num_layers, batch_size, hidden_dim]
-        lstm_out, self.hidden = self.lstm(input.view(self.sequence_len, self.batch_size, self.input_size), hidden)
+        lstm_out, self.hidden = self.lstm(input.view(self.batch_size, self.sequence_len, self.input_size), hidden)
         
         #output of the last element to the output layer.
-        y_pred = self.linear(lstm_out[-1].view(self.batch_size, self.hidden_size))
+        y_pred = self.linear(lstm_out[:, -1, :].view(self.batch_size, self.hidden_size))
         return y_pred.view(-1)
     
     def reset_parameters(self):
