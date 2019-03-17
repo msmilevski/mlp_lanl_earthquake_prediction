@@ -107,7 +107,7 @@ class ExperimentBuilder(nn.Module):
         return loss.data.detach().cpu().numpy()
 
     def save_model(self, model_save_dir, model_save_name, model_idx, best_validation_model_idx,
-                   best_validation_model_acc):
+                   best_validation_model_loss):
         """
         Save the network parameter state and current best val epoch idx and best val accuracy.
         :param model_save_name: Name to use to save model without the epoch index
@@ -183,11 +183,11 @@ class ExperimentBuilder(nn.Module):
             epoch_elapsed_time = time.time() - epoch_start_time  # calculate time taken for epoch
             epoch_elapsed_time = "{:.4f}".format(epoch_elapsed_time)
             print("Epoch {}:".format(epoch_idx), out_string, "epoch time", epoch_elapsed_time, "seconds")
-            # self.save_model(model_save_dir=self.experiment_saved_models,
-            #                 # save model and best val idx and best val acc, using the model dir, model name and model idx
-            #                 model_save_name="train_model", model_idx=epoch_idx,
-            #                 best_validation_model_idx=self.best_val_model_idx,
-            #                 best_validation_model_loss=self.best_val_model_loss)
+            self.save_model(model_save_dir=self.experiment_saved_models,
+                # save model and best val idx and best val acc, using the model dir, model name and model idx
+                model_save_name="train_model", model_idx=epoch_idx,
+                best_validation_model_idx=self.best_val_model_idx,
+                best_validation_model_loss=self.best_val_model_loss)
 
             # early stoping:
             # if epoch_idx > self.best_val_model_idx + self.max_non_improvements:
