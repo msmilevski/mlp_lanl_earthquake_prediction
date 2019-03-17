@@ -25,7 +25,7 @@ class ConvolutionalNetwork(nn.Module):
         """
         x = torch.zeros((self.input_shape))
         out = x
-        print("Input: " + str(out.shape))
+
         self.layer_dict['conv_{}'.format(0)] = nn.Conv1d(in_channels=out.shape[1],
                                                          out_channels=16,
                                                          kernel_size=64,
@@ -35,57 +35,67 @@ class ConvolutionalNetwork(nn.Module):
         out = self.layer_dict['conv_{}'.format(0)](out)
 
         out = F.relu(out)
-        self.layer_dict['max-pool_{}'.format(0)] = nn.MaxPool1d(kernel_size=8,
-                                                                stride=8,
-                                                                padding=0)
-        out = self.layer_dict['max-pool_{}'.format(0)](out)
-
         self.layer_dict['conv_{}'.format(1)] = nn.Conv1d(in_channels=out.shape[1],
+                                                         out_channels=16,
+                                                         kernel_size=8,
+                                                         stride=8,
+                                                         padding=0,
+                                                         dilation=2)
+        out = self.layer_dict['conv_{}'.format(1)](out)
+
+        out = F.relu(out)
+        self.layer_dict['conv_{}'.format(2)] = nn.Conv1d(in_channels=out.shape[1],
                                                          out_channels=64,
                                                          kernel_size=32,
                                                          stride=2,
                                                          padding=16)
 
-        out = self.layer_dict['conv_{}'.format(1)](out)
+        out = self.layer_dict['conv_{}'.format(2)](out)
 
         out = F.relu(out)
-        self.layer_dict['max-pool_{}'.format(1)] = nn.MaxPool1d(kernel_size=8,
-                                                                stride=8,
-                                                                padding=0)
-        out = self.layer_dict['max-pool_{}'.format(1)](out)
 
-        self.layer_dict['conv_{}'.format(2)] = nn.Conv1d(in_channels=out.shape[1],
+        self.layer_dict['conv_{}'.format(3)] = nn.Conv1d(in_channels=out.shape[1],
+                                                         out_channels=64,
+                                                         kernel_size=8,
+                                                         stride=8,
+                                                         padding=0,
+                                                         dilation=4)
+        out = self.layer_dict['conv_{}'.format(3)](out)
+
+        out = F.relu(out)
+        self.layer_dict['conv_{}'.format(4)] = nn.Conv1d(in_channels=out.shape[1],
                                                          out_channels=128,
                                                          kernel_size=16,
                                                          stride=2,
                                                          padding=8)
 
-        out = self.layer_dict['conv_{}'.format(2)](out)
+        out = self.layer_dict['conv_{}'.format(4)](out)
+        out = F.relu(out)
+
+        self.layer_dict['conv_{}'.format(5)] = nn.Conv1d(in_channels=out.shape[1],
+                                                         out_channels=128,
+                                                         kernel_size=8,
+                                                         stride=8,
+                                                         padding=0,
+                                                         dilation=8)
+        out = self.layer_dict['conv_{}'.format(5)](out)
 
         out = F.relu(out)
-        self.layer_dict['max-pool_{}'.format(2)] = nn.MaxPool1d(kernel_size=8,
-                                                                stride=8,
-                                                                padding=0)
-        out = self.layer_dict['max-pool_{}'.format(2)](out)
-
-        out = F.relu(out)
-        self.layer_dict['conv_{}'.format(3)] = nn.Conv1d(in_channels=out.shape[1],
+        self.layer_dict['conv_{}'.format(6)] = nn.Conv1d(in_channels=out.shape[1],
                                                          out_channels=256,
                                                          kernel_size=8,
                                                          stride=2,
                                                          padding=4)
 
-        out = self.layer_dict['conv_{}'.format(3)](out)
-
+        out = self.layer_dict['conv_{}'.format(6)](out)
         out = F.relu(out)
-        self.layer_dict['conv_{}'.format(4)] = nn.Conv1d(in_channels=out.shape[1],
+        self.layer_dict['conv_{}'.format(7)] = nn.Conv1d(in_channels=out.shape[1],
                                                          out_channels=1401,
                                                          kernel_size=16,
                                                          stride=12,
                                                          padding=4)
 
-        out = self.layer_dict['conv_{}'.format(4)](out)
-
+        out = self.layer_dict['conv_{}'.format(7)](out)
         out = F.relu(out)
         out = torch.reshape(out, (out.shape[0], out.shape[1]))
         self.linear_layer = nn.Linear(in_features=out.shape[1],
@@ -102,21 +112,11 @@ class ConvolutionalNetwork(nn.Module):
         :return: preds (b, num_classes)
         """
         out = torch.reshape(x, (x.shape[0], 1, x.shape[1]))
-        print("Input: " + str(out.shape))
-        out = self.layer_dict['conv_{}'.format(0)](out)
-        out = F.relu(out)
-        out = self.layer_dict['max-pool_{}'.format(0)](out)
-        out = self.layer_dict['conv_{}'.format(1)](out)
-        out = F.relu(out)
-        out = self.layer_dict['max-pool_{}'.format(1)](out)
-        out = self.layer_dict['conv_{}'.format(2)](out)
-        out = F.relu(out)
-        out = self.layer_dict['max-pool_{}'.format(2)](out)
-        out = F.relu(out)
-        out = self.layer_dict['conv_{}'.format(3)](out)
-        out = F.relu(out)
-        out = self.layer_dict['conv_{}'.format(4)](out)
-        out = F.relu(out)
+
+        for i in range(0, 8):
+            out = self.layer_dict['conv_{}'.format(0)](out)
+            out = F.relu(out)
+
         out = torch.reshape(out, (out.shape[0], out.shape[1]))
         out = self.linear_layer(out)
 
@@ -133,3 +133,6 @@ class ConvolutionalNetwork(nn.Module):
                 pass
 
         self.linear_layer.reset_parameters()
+
+
+model = ConvolutionalNetwork(input_shape=(64, 1, 150000))
