@@ -7,7 +7,7 @@ from sklearn.svm import SVR
 import data_provider
 import time
 
-results_path = "SVR.out"
+results_path = "SVR_erro_bar.out"
 
 def write_to_results(text, mode="a"):
     with open(results_path, mode) as f:
@@ -21,32 +21,51 @@ kernels = ['rbf', 'sigmoid', 'linear']
 epsilons = [1.0, 2.0, 0.1]
 total_num_models = len(kernels) * len(Cs) * len(epsilons)
 
-print("starting evaluation of {0} models".format(total_num_models))
-for C in Cs:
-    for kernel in kernels:
-        for epsilon in epsilons:
-            print("MODEL {0}".format(models_evaluated))
+def get_error_bar(errors):
+    errors = np.array(errors)
+    mean = np.mean(errors)
+    std = np.std(errors)
+    n = len(errors)
 
-            if models_evaluated <= 7:   # Already have results for these models
-                print("skipping this model")
-                models_evaluated += 1
-                continue
+    return mean, std / np.sqrt(n)
 
-            
-            start = time.time()
+models = [
+    (0.41, 'linear', 1),
+    (0.01, 'linear', 1),
+    (0.01, 'linear', 2)
+]
+seeds = [123131, 856856, 293420]#, 775241, 5562960] 
 
-            clf = SVR(kernel=kernel, C=C, epsilon=epsilon)
-            clf.fit(x_train, y_train)
-            predictions = clf.predict(x_val)
-            error = mean_absolute_error(y_val, predictions)
+print("starting evaluation of 10 models")
 
-            result = 'Kernel: ' + kernel +', C: ' + str(C) + ', epsilon: ' + str(epsilon) +', MAE: ' + str(error)
-            print(result)
-            write_to_results(result)
+# for C in Cs:
+#     for kernel in kernels:
+#         for epsilon in epsilons:
+for C, kernel, epsilon in models:
+    errors = []    
+    for seed in seeds:
+        print("MODEL {0}".format(models_evaluated))        
 
-            end = time.time()
-            print("Model {0} evaluation finished, time elapsed: {1}".format(models_evaluated, end - start))
-            models_evaluated +=1
+        start = time.time()
 
-            print("{0}/{1} models evaluated".format(models_evaluated, total_num_models))
+        clf = SVR(kernel=kernel, C=C, epsilon=epsilon)
+        clf.fit(x_train, y_train)
+        predictions = clf.predict(x_val)
+        error = mean_absolute_error(y_val, predictions)
+        errors.append(error)
 
+        
+        
+        # write_to_results(result)
+        result = 'Kernel: ' + kernel +', C: ' + str(C) + ', epsilon: ' + str(epsilon) +', MAE: ' + str(error)
+        print(result)
+
+        end = time.time()
+        print("Model {0} evaluation finished, time elapsed: {1}".format(models_evaluated, end - start))
+        models_evaluated +=1
+
+        print("{0}/{1} models evaluated".format(models_evaluated, total_num_models))
+
+    mean, error_bar = get_error_bar(errors)
+    model = 'Kernel: ' + kernel +', C: ' + str(C) + ', epsilon: ' + str(epsilon)
+    write_to_results("{0}, error: {1} +- {2}".format(model, mean, error_bar))

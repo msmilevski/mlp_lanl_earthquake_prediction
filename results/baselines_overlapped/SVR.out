@@ -1,0 +1,17 @@
+Kernel: rbf, C: 0.01, epsilon: 1.0, MAE: 3.170120540375008
+Kernel: rbf, C: 0.01, epsilon: 2.0, MAE: 3.1813905967199694
+Kernel: rbf, C: 0.01, epsilon: 0.1, MAE: 3.164178979133913
+Kernel: sigmoid, C: 0.01, epsilon: 1.0, MAE: 3.221211381056108
+Kernel: sigmoid, C: 0.01, epsilon: 2.0, MAE: 3.220824207377038
+Kernel: sigmoid, C: 0.01, epsilon: 0.1, MAE: 3.221218378214247
+Kernel: linear, C: 0.01, epsilon: 1.0, MAE: 2.5038899945273627
+Kernel: linear, C: 0.01, epsilon: 2.0, MAE: 2.506892741577802
+Kernel: linear, C: 0.01, epsilon: 0.1, MAE: 2.516112635856819
+Kernel: rbf, C: 0.41000000000000003, epsilon: 1.0, MAE: 2.833752278515952
+Kernel: rbf, C: 0.41000000000000003, epsilon: 2.0, MAE: 2.8766735060887565
+Kernel: rbf, C: 0.41000000000000003, epsilon: 0.1, MAE: 2.798114727803881
+Kernel: sigmoid, C: 0.41000000000000003, epsilon: 1.0, MAE: 3.2212113810561056
+Kernel: sigmoid, C: 0.41000000000000003, epsilon: 2.0, MAE: 3.2208242073770355
+Kernel: sigmoid, C: 0.41000000000000003, epsilon: 0.1, MAE: 3.2212183782142447
+Kernel: linear, C: 0.41000000000000003, epsilon: 1.0, MAE: 2.445507523673913
+Kernel: linear, C: 0.41000000000000003, epsilon: 2.0, MAE: 2.5628608792161245
