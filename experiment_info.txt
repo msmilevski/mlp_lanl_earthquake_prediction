@@ -56,6 +56,27 @@ lstm_full_raw2
 	layers = 2
 	dropout = 0.5
 
+lstm_full_raw3   // mlp cluster
+	learning_rate 0.0003	
+ 	num_layers 3
+ 	dropout 0.5
+
+lstm_full_raw4   // mlp cluster
+	learning_rate 0.0002	
+ 	num_layers 2
+ 	dropout 0
+
+lstm_full_raw5   // mlp cluster
+	learning_rate 0.001	
+ 	num_layers 2
+ 	dropout 0
+
+±lstm_full_raw1
+	learning_rate = 0.0002
+	hidden_size = 100
+	layers = 2
+	dropout = 0.3
+
 lstm_overlapped1
 	learning_rate = 0.0002
 	hidden_size = 100
@@ -80,6 +101,22 @@ lstm_overlapped4
 	layers = 3
 	dropout = 0
 
+lstm_overlapped6  // mlp cluster
+	dropout 0.5
+	learning_rate 0.0002
+	batch_size 64
+	num_layers 3
+
+lstm_overlapped9 // mlp cluster
+	num_epochs 100 --dropout 0.5 \
+	learning_rate 0.0002 --batch_size 64 \
+	num_layers 3 --overlapped_data "true" --overlap_fraction 0.9
+
+lstm_overlapped9 // mlp cluster
+	num_epochs 100 --dropout 0 \
+	learning_rate 0.0002 --batch_size 64 \
+	num_layers 3 --overlapped_data "true" --overlap_fraction 0.9
+
 lstm_train_overlap_batch_64
 	 --num_epochs 100 --dropout 0 \
 	 --learning_rate 0.001 --batch_size 64 \
@@ -98,3 +135,5 @@ lstm_new_overlapped_provider_2
 	 --learning_rate 0.001 --batch_size 64 \
 	 --num_layers 3 --overlapped_data "true" --overlap_fraction 0.9
 	 // val is not overlapped
+
+
