@@ -38,9 +38,9 @@ mkdir -p ${DATASET_DIR}
 
 source /home/${STUDENT_ID}/miniconda3/bin/activate mlp
 python scripts/experiments/lstm_experiment.py --data_path /home/${STUDENT_ID}/lanl_earthquake/data \
-											 --experiment_name "lstm_overlapped7" \
+											 --experiment_name "lstm_full_raw4" \
 											 --segment_size 150000 --element_size 1000 \
 											 --use_gpu "true" --gpu_id "0,1,2,3" \
-											 --num_epochs 100 --dropout 0.5 \
+											 --num_epochs 100 --dropout 0 \
 											 --learning_rate 0.0002 --batch_size 64 \
-											 --num_layers 3 --overlapped_data "true" --overlap_fraction 0.9
+											 --num_layers 2 --overlapped_data "false"
