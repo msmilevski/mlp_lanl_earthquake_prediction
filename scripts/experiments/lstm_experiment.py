@@ -14,10 +14,11 @@ torch.manual_seed(seed=args.seed) # sets pytorch's seed
 
 
 train_data = SeqDataProvider(which_set='train', data_path=args.data_path, segment_size=args.segment_size,
-  element_size=args.element_size, feature_size=58, overlap=True, rng=rng)
+  element_size=args.element_size, feature_size=58, overlap=False, rng=rng)
 val_data = SeqDataProvider(which_set='val', data_path=args.data_path, segment_size=args.segment_size, 
-  element_size=args.element_size, feature_size=58, overlap=True, rng=rng)
+  element_size=args.element_size, feature_size=58, overlap=False, rng=rng)
 
+print("building model")
 model = LSTM(input_size = 58 , hidden_size = args.hidden_size, output_size=1, dropout=args.dropout, num_layers=args.num_layers)
 
 experiment = ExperimentBuilder(network_model=model,

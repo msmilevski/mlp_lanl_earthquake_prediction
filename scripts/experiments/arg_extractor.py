@@ -16,7 +16,7 @@ def get_args():
     parser = argparse.ArgumentParser(
         description='Welcome to the MLP course\'s Pytorch training and inference helper script')
 
-    parser.add_argument('--batch_size', nargs="?", type=int, default=10, help='Batch_size for experiment')
+    parser.add_argument('--batch_size', nargs="?", type=int, default=1, help='Batch_size for experiment')
     parser.add_argument('--continue_from_epoch', nargs="?", type=int, default=-1, help='Batch_size for experiment')
     parser.add_argument('--seed', nargs="?", type=int, default=7112018,
                         help='Seed to use for random number generator for experiment')
@@ -40,7 +40,7 @@ def get_args():
     parser.add_argument('--gpu_id', type=str, default="None", help="A string indicating the gpu to use")
     parser.add_argument('--learning_rate', nargs="?", type=float, default=1e-3,
                         help='Learning rate passed to the optimizer')
-    
+
     parser.add_argument('--num_layers', nargs="?", type=int, default=2, help='Number of layers')
     parser.add_argument('--hidden_size', nargs="?", type=int, default=150, help='Hidden size')
 
@@ -51,6 +51,6 @@ def get_args():
         args.gpu_id = gpu_id
 
 
-    
+
     print(args)
     return args

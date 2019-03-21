@@ -6,7 +6,7 @@ class RawDataProvider(DataProvider):
     # returns the raw data of shape:  (num_segments, segment_size / element_size, element_size)
 
     def __init__(self, data_path, which_set='train', segment_size=150000, element_size=1000,
-        batch_size=1, rng=None, downsampled=False):
+        batch_size=1, rng=None, downsampled=False, partial=False):
         assert which_set in ['train', 'val'], (
             'Expected which_set to be either train or val '
             'Got {0}'.format(which_set)
@@ -19,16 +19,19 @@ class RawDataProvider(DataProvider):
         assert os.path.isfile(file_path), (
             'Data file does not exist at expected path: ' + file_path
         )
-        
+
         print("Loading data")
 
-        loaded = np.loadtxt(file_path, delimiter=",", skiprows=1, dtype=[('signal', np.int16), ('time', np.float)])        
+        if not partial:
+            loaded = np.loadtxt(file_path, delimiter=",", skiprows=1, dtype=[('signal', np.int16), ('time', np.float)])
+        else:
+            loaded = np.loadtxt(file_path, delimiter=",", skiprows=1, dtype=[('signal', np.int16), ('time', np.float)], max_rows=1500000)        
 
         suitable_data_length = loaded.shape[0] // segment_size * segment_size
         amplitudes = loaded['signal'][:suitable_data_length, None]
         times = loaded['time'][:suitable_data_length]
 
-        n_amplitudes = amplitudes.shape[0]        
+        n_amplitudes = amplitudes.shape[0]
         inputs = amplitudes.reshape(n_amplitudes // segment_size, segment_size // element_size, element_size)
 
         targets = times[np.arange(segment_size - 1, times.shape[0], segment_size)]
@@ -36,7 +39,7 @@ class RawDataProvider(DataProvider):
         print("inputs shape: {0}, targets shape: {1}".format(inputs.shape, targets.shape))
         assert inputs.shape[0] == targets.shape[0]
 
-        
+
         # pass the loaded data to the parent class __init__
         super(RawDataProvider, self).__init__(
             inputs, targets, batch_size, rng=rng)
